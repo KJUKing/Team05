@@ -1,0 +1,58 @@
+<%@page import="kr.or.ddit.prod.vo.ProdVO"%>
+<%@page import="java.util.List"%>
+<%@page import="java.text.NumberFormat"%>
+<%@ page import="kr.or.ddit.util.PageVO" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+
+<%
+    List<ProdVO> prodList = (List<ProdVO>) request.getAttribute("prodList");
+    PageVO pageInfo = (PageVO) request.getAttribute("pageInfo");
+
+    // 가격 포맷 설정 (NumberFormat 사용)
+    NumberFormat currencyFormatter = NumberFormat.getInstance();
+%>
+
+<!-- 상품 목록 그리드 -->
+<div class="product-grid">
+    <%
+        for (ProdVO pvo : prodList) {
+            String formattedPrice = currencyFormatter.format(pvo.getProd_price()); // 가격을 000,000 형식으로 포맷
+    %>
+        <div class="product-grid-item">
+            <a href="<%=request.getContextPath()%>/prod/prodListView.do?prodId=<%= pvo.getProd_id() %>">
+                <img src="<%= request.getContextPath() %>/images/prod/<%= pvo.getProd_image() %>" alt="<%= pvo.getProd_name() %>" />
+                <br/>
+                <%= pvo.getProd_name() %>
+            </a>
+            <!-- 가격 표시 -->
+            <div class="product-price">
+                <p>가격: KRW <%= formattedPrice %></p>
+            </div>
+        </div>
+    <%
+        }
+    %>
+</div>
+
+<!-- 페이지네이션 -->
+<div class="pagination">
+    <%
+        if (pageInfo != null) {
+            if (pageInfo.getStartPage() > 1) {
+    %>
+    <a href="<%=request.getContextPath()%>/prod/prodList.do?page=<%=pageInfo.getStartPage() - 1%>">이전</a>
+    <%
+            }
+            for (int i = pageInfo.getStartPage(); i <= pageInfo.getEndPage(); i++) {
+    %>
+    <a href="<%=request.getContextPath()%>/prod/prodList.do?page=<%=i%>"><%=i%></a>
+    <%
+            }
+            if (pageInfo.getEndPage() < pageInfo.getTotalPage()) {
+    %>
+    <a href="<%=request.getContextPath()%>/prod/prodList.do?page=<%=pageInfo.getEndPage() + 1%>">다음</a>
+    <%
+            }
+        }
+    %>
+</div>

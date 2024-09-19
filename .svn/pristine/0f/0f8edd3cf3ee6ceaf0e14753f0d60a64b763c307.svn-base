@@ -1,0 +1,157 @@
+<%@page import="kr.or.ddit.review.vo.ReviewVO"%>
+<%@page import="java.util.List"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>리뷰 목록</title>
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/styles.css">
+<script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery-3.7.1.js"></script>
+<script type="text/javascript">
+  $(document).ready(function(){
+      $("#btnmyreview").on("click", function(){
+          location.href="<%=request.getContextPath()%>/myreviewList.do";
+      });
+      
+      $('#btninsert').on("click", function(){
+          location.href="<%=request.getContextPath()%>/review/insertReview.do";
+      });
+  });
+</script>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f7f7f7; /* 아이보리 배경 */
+    }
+    h1 {
+        color: #333;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        background-color: #fff; /* 흰색 배경 */
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    th, td {
+        padding: 12px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+    th {
+        background-color: #f2f2f2; /* 연한 아이보리 */
+        color: #333;
+    }
+    tr:nth-child(even) {
+        background-color: #f9f9f9; /* 연한 회색 */
+    }
+    tr:hover {
+        background-color: #e6e6e6; /* 더 연한 회색 */
+    }
+    .button-container {
+        text-align: right;
+        margin-bottom: 20px;
+    }
+    .button-container input {
+        padding: 10px 20px;
+        font-size: 16px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-left: 10px;
+    }
+    #btnmyreview {
+        background-color: #d6cfcf; /* 아이보리 계열 */
+        color: #333;
+    }
+    #btninsert {
+        background-color: #b9a69b; /* 더 어두운 아이보리 계열 */
+        color: #fff;
+    }
+    #siren {
+        width: 20px;
+        height: 20px;
+    }
+    .star-rating {
+        color: gold; /* 별 색깔 */
+        font-size: 16px;
+    }
+</style>
+</head>
+<body>
+<h1>리뷰 목록</h1>
+
+<div class="button-container">
+    <input id="btnmyreview" type="button" value="내가 쓴 리뷰 보기"> 
+    <input id="btninsert" type="button" value="리뷰 쓰기"> 
+</div>
+
+<%
+    List<ReviewVO> rList = (List<ReviewVO>) request.getAttribute("reviewList");
+    if (rList == null || rList.isEmpty()) {
+%>
+<p>리뷰 목록이 없습니다.</p>
+<%
+    } else {
+%>
+<table>
+    <thead>
+        <tr>
+            <th>리뷰 번호</th>
+            <th>회원ID</th>
+            <th>별점</th>
+            <th>내용</th>
+            <th>날짜</th>
+            <th>장바구니ID</th>
+            <th>옵션ID</th>
+            <th>상품ID</th>
+            <th>신고하기</th>
+        </tr>
+    </thead>
+    <tbody>
+    <%
+        for (ReviewVO rvo : rList) {
+            int starRating = rvo.getReview_star();
+            int emptyStars = 5 - starRating;
+    %>
+        <tr>
+            <td><%= rvo.getReview_id() %></td>
+            <td><%= rvo.getMem_id() %></td>
+            <td class="star-rating">
+                <%
+                    for (int i = 0; i < starRating; i++) {
+                %>
+                    &#9733; <!-- 채워진 별 Unicode -->
+                <%
+                    }
+                    for (int i = 0; i < emptyStars; i++) {
+                %>
+                    &#9734; <!-- 빈 별 Unicode -->
+                <%
+                    }
+                %>
+            </td>
+            <td><%= rvo.getReview_content() %></td>
+            <td><%= rvo.getReview_date() %></td>
+            <td><%= rvo.getCart_id() %></td>
+            <td><%= rvo.getOption_id() %></td>
+            <td><%= rvo.getProd_id() %></td>
+            <td>
+                <a href="<%= request.getContextPath()%>/reportView.do?review_id=<%= rvo.getReview_id() %>">
+                    <img src="<%= request.getContextPath()%>/images/사이렌.png" alt="사이렌" id="siren">
+                </a>
+            </td>
+        </tr>
+    <%
+        }
+    %>
+    </tbody>
+</table>
+<%
+    }
+%>
+</body>
+</html>

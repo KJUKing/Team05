@@ -1,0 +1,54 @@
+package kr.or.ddit.prod.service;
+
+import java.util.List;
+
+import kr.or.ddit.prod.dao.DeCateDaoImpl;
+import kr.or.ddit.prod.dao.IDeCateDao;
+import kr.or.ddit.prod.vo.DeCateVO;
+
+public class DeCateServiceImpl implements IDeCateService {
+	
+	private static DeCateServiceImpl service;
+	
+	private IDeCateDao dao;
+	
+	private DeCateServiceImpl() {
+		dao = DeCateDaoImpl.getInstance();
+	}
+	
+	public static DeCateServiceImpl getInstance() {
+		if(service==null) service = new DeCateServiceImpl();
+		
+		return service;
+	}
+	
+	@Override
+	public int insertDeCate(DeCateVO dcvo) {
+		// TODO Auto-generated method stub
+		return dao.insertDeCate(dcvo);
+	}
+
+	@Override
+	public int deleteDeCate(String dcateId) {
+		// TODO Auto-generated method stub
+		return dao.deleteDeCate(dcateId);
+	}
+
+	@Override
+	public int updateDeCate(DeCateVO dcvo) {
+		// TODO Auto-generated method stub
+		return dao.updateDeCate(dcvo);
+	}
+
+	@Override
+	public List<DeCateVO> getAllDeCate() {
+		// TODO Auto-generated method stub
+		return dao.getAllDeCate();
+	}
+
+	@Override
+	public List<DeCateVO> getIdDeCate(String cateId) {
+		// TODO Auto-generated method stub
+		return dao.getIdDeCate(cateId);
+	}
+}

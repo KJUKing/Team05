@@ -1,0 +1,130 @@
+<%@page import="kr.or.ddit.riturn.vo.RiturnVO"%>
+<%@page import="java.util.List"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>나의 구매 내역</title>
+<style type="text/css">
+body {
+    font-family: Arial, sans-serif;
+}
+
+.purchase-history-container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.purchase-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
+}
+
+.product-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border: 1px solid #ddd;
+    margin-right: 20px;
+}
+
+.product-info {
+    flex: 1;
+}
+
+.product-info p {
+    margin: 5px 0;
+}
+   
+.buttons {
+    display: flex;
+    flex-direction: column;
+}
+
+.buttons button, .buttons input {
+    margin-bottom: 5px;
+    padding: 10px;
+    background-color: #ffcc99;
+    border: none;
+    cursor: pointer;
+    width: 100px;
+}
+
+.buttons button:hover, .buttons input:hover {
+    background-color: #ffb366;
+}
+.btn {
+    width: 100%;
+    padding: 8px;
+    margin-top: 15px;
+    background-color: #ffcc99; /* 따뜻한 색상 */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+ }
+ .btn:hover {
+    background-color: #ffb366; /* 호버 시 조금 더 진한 색상 */
+ }  
+
+</style>
+<script type="text/javascript">
+window.onload = function() {  
+
+    document.querySelector('.btn-main').onclick = function() {
+        window.location.href = '<%=request.getContextPath()%>/main'; // 메인 페이지로 이동
+    };
+}
+
+</script>
+</head>
+<body>
+    <div class="purchase-history-container">
+        <h1>나의 구매 내역</h1>
+        <% List<RiturnVO> riturnList = (List<RiturnVO>)request.getAttribute("riturnList"); %>
+        <% for(RiturnVO riList : riturnList){ %>
+        <div class="purchase-item">
+            <img src="<%=riList.getProd_image()%>"  class="product-image">
+            <div class="product-info">
+                <p><%=riList.getProd_name() %></p>
+                <p><%=riList.getOption_name()%>/<%=riList.getOption_value()%>
+                 <%=riList.getDcart_qty()%>개</p>
+                <p>가격 : <%=riList.getProd_price()%>원</p>
+            </div>
+            <div class="buttons">
+                <form action="<%=request.getContextPath()%>/express/trackDelivery.do" method="get">
+                    <input type="hidden" name="cartId" value="<%=riList.getCart_id()%>">
+                    <input type="submit" value="배송 조회">
+                </form>
+                
+                <form action="<%=request.getContextPath()%>/riturn/riturnProd.do" method="post">
+                    <input type="hidden" name="cartId" value="<%=riList.getCart_id()%>">
+                    <input type="submit" value="반품">
+                </form>
+                
+                <form action="<%=request.getContextPath()%>/review/insertReview.do" method="post">
+                    <input type="hidden" name="cartId" value="<%=riList.getCart_id()%>">
+                    <input type="submit" value="리뷰 작성">
+                </form>
+            </div>
+        </div>
+        <%} %>
+        <input type="button" class="btn btn-main" value="메인으로 돌아가기">
+    </div>
+</body>
+</html>

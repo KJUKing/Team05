@@ -1,0 +1,252 @@
+<%@ page import="kr.or.ddit.prod.vo.OptionVO" %>
+<%@ page import="kr.or.ddit.prod.vo.ProdVO" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상품 상세 페이지</title>
+    <script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-3.7.1.js"></script>
+    <style>
+        /* 기존 스타일 */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .product {
+            display: flex;
+            flex-wrap: wrap;
+            max-width: 1000px;
+            width: 100%;
+        }
+        .product-image {
+            flex: 1;
+            min-width: 300px;
+            margin-right: 20px;
+        }
+        .product-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        .product-details {
+            flex: 2;
+            min-width: 300px;
+        }
+        .product-details h1 {
+            margin-top: 0;
+        }
+        .product-details .price {
+            font-size: 24px;
+            color: #e74c3c;
+            margin: 15px 0;
+        }
+        .product-details .description {
+            margin: 15px 0;
+            line-height: 1.6;
+        }
+        .buy-button {
+            padding: 15px 30px;
+            font-size: 18px;
+            color: #fff;
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .buy-button:hover {
+            background: linear-gradient(45deg, #0056b3, #007bff);
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+        .quantity-container {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .quantity-button {
+            font-size: 24px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        .quantity-button:hover {
+            background-color: #0056b3;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .quantity-input {
+            width: 80px;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 20px;
+            margin: 0 10px;
+            /* Hide arrows in number input */
+            -moz-appearance: textfield; /* Firefox */
+            -webkit-appearance: none; /* Chrome, Safari, Edge */
+        }
+        .quantity-input::-webkit-inner-spin-button,
+        .quantity-input::-webkit-outer-spin-button {
+            -webkit-appearance: none; /* Chrome, Safari, Edge */
+            margin: 0; /* Remove default margin */
+        }
+        select {
+            font-size: 18px;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            width: 100%;
+            max-width: 300px; /* 원하는 최대 너비로 조정 */
+        }
+        .info-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 600px; /* 원하는 최대 너비로 조정 */
+            margin: 20px 0;
+        }
+        .info-container p {
+            font-size: 18px;
+            margin: 0;
+            font-weight: bold;
+        }
+        .info-container .price, .info-container .quantity {
+            color: #333;
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<%
+    List<ProdVO> prodList = (List<ProdVO>) request.getAttribute("prodList");
+    List<OptionVO> optionList = (List<OptionVO>) request.getAttribute("optionList");
+    ProdVO pvo = prodList != null && !prodList.isEmpty() ? prodList.get(0) : new ProdVO(); // 첫 번째 상품을 예로 설정
+%>
+<div class="container">
+    <div class="header">
+        <h1>상품 상세 페이지</h1>
+    </div>
+    <div class="product">
+        <div class="product-image">
+            <img src="<%= request.getContextPath() %>/images/prod/<%= pvo.getProd_image() %>" alt="<%= pvo.getProd_name() %>" width="300" height="300">
+        </div>
+        <div class="product-details">
+            <h1><%= pvo.getProd_name() %></h1>
+            <p class="price"><%= String.format("₩%,d", pvo.getProd_price()) %></p>
+            <p class="description">
+                <%= pvo.getProd_content() %>
+            </p>
+        </div>
+    </div>
+
+    <!-- 상품 옵션 선택 및 수량 조정 -->
+    <div class="product-options">
+        <h2>상품 옵션 선택</h2>
+        <form id="optionForm" action="<%= request.getContextPath() %>/payMent.do" method="post">
+            <input type="hidden" name="prod_id" value="<%= pvo.getProd_id() %>">
+            <input type="hidden" name="quantity" id="modal-quantity" value="1">
+
+            <p>상품 옵션 </p>
+            <select id="option2" name="option2">
+                <%
+                    for (OptionVO option : optionList) {
+                %>
+                    <option value="<%= option.getOption_id() %>"><%= option.getOption_name() %>-<%= option.getOption_value() %></option>
+                <%
+                    }
+                %>
+            </select>
+            
+            <br><br>
+            <div class="quantity-container">
+                <button type="button" class="quantity-button" id="decreaseQuantity">-</button>
+                <input type="number" id="modal-quantity-input" class="quantity-input" value="1" min="1">
+                <button type="button" class="quantity-button" id="increaseQuantity">+</button>
+            </div>
+            <div class="info-container">
+                <p class="quantity">현재 수량: <span id="currentQuantity">1</span></p>
+                <p class="price">가격: <span id="modal-price">₩<%= String.format("%,d", pvo.getProd_price()) %></span></p>
+            </div>
+            <button type="submit" class="buy-button">확인</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // 수량 조정 및 가격 업데이트 기능
+    var quantityInput = document.getElementById("modal-quantity-input");
+    var modalPriceSpan = document.getElementById("modal-price");
+    var currentQuantitySpan = document.getElementById("currentQuantity");
+    var basePrice = <%= pvo.getProd_price() %>;
+
+    // 수량 증가 버튼 클릭 시
+    document.getElementById("increaseQuantity").onclick = function() {
+        var quantity = parseInt(quantityInput.value, 10);
+        quantityInput.value = quantity + 1;
+        updatePrice();
+    }
+
+    // 수량 감소 버튼 클릭 시
+    document.getElementById("decreaseQuantity").onclick = function() {
+        var quantity = parseInt(quantityInput.value, 10);
+        if (quantity > 1) {
+            quantityInput.value = quantity - 1;
+            updatePrice();
+        }
+    }
+
+    // 수량 변경 시 가격 업데이트
+    quantityInput.addEventListener('change', function() {
+        updatePrice();
+    });
+
+    // 가격 업데이트 함수
+    function updatePrice() {
+        var quantity = parseInt(quantityInput.value, 10);
+        if (isNaN(quantity) || quantity < 1) {
+            quantity = 1;
+        }
+        var totalPrice = basePrice * quantity;
+        modalPriceSpan.innerText = '₩' + totalPrice.toLocaleString();
+        currentQuantitySpan.innerText = quantity;
+    }
+
+    // 페이지 로드 시 초기 가격 설정
+    window.onload = function() {
+        updatePrice(); // 페이지 로드 시 가격을 설정합니다.
+    };
+</script>
+</body>
+</html>

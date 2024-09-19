@@ -1,0 +1,134 @@
+<%@page import="com.google.gson.Gson"%>
+<%@page import="kr.or.ddit.member.vo.MemberVO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>QNA MODAL</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+		<script src="${pageContext.request.contextPath}/js/jquery-3.7.1.js"></script>
+		<script src="${pageContext.request.contextPath}/js/qna.js"></script>
+		<script src="${pageContext.request.contextPath}/js/jquery.serializejson.min.js"></script>
+		<link rel="stylesheet" href="${pageContext.request.contextPath}/css/qnaStyle.css">
+</head>
+<body>
+
+		<script>
+		
+		$(document).ready(function() {
+			// qna 작성용 모달창 열기 start
+			$('#qnaInsert').on('click', function(){
+			<%
+				// 로그인 상태 확인 start
+				MemberVO vo = (MemberVO)session.getAttribute("loggedInMember"); // LoginContgroller.java에서 session으로 넘어옴.
+				String loggedInMember = null;
+				
+				Gson gson = new Gson();
+				if(vo != null) loggedInMember = gson.toJson(vo);
+			%>
+				uvo = <%= loggedInMember %>
+				uvo = 'temporay loggedin check';
+		
+				if(uvo == null) {
+					alert("로그인 하세요");
+					return;
+				}
+				// 모달 이름칸에 이름 넣기
+				// $('#writer').val(uvo.memId);
+				$('#writer').val('tempID');
+			
+				// 모달 이름 수정 불가 설정
+				$('#writer').prop('readonly', true);	
+						
+				// 모달 보이게 하기
+				$('#qnaModal').modal('show');
+			})
+			// qna 작성용 모달창 열기 end
+			
+			// qna 작성 완료 버튼 클릭 start
+			$('#send').on('click', function(){
+				// 입력한 모든 내용 가져오기
+				fdata3 = $('#qnaForm').serializeJSON();
+				console.log(fdata3);
+				
+				// 글쓰기 함수 호출
+				$.qnaInsertPost();
+				
+				// 모달창 닫기
+				$('#qnaModal').modal('hide');
+				
+				// 모달창 내용 지우기
+				$('#qnaModal .txt').val("");
+			})
+			// qna 작성 완료 버튼 클릭 end
+		})
+	</script>
+	
+QNA Modal
+		
+<div class="container-fluid">
+	<input type="button" id="qnaInsert" value="글쓰기">
+</div>
+
+<!------- qna 글쓰기 modal --------->
+<!------- qna 글쓰기 modal --------->
+<!------- qna 글쓰기 modal --------->
+<!------- qna 글쓰기 modal --------->
+<!------- qna 글쓰기 modal --------->
+<div class="modal" id="qnaModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+
+			<!-- Modal Header -->
+			<div class="modal-header">
+				<h4 class="modal-title">문의글 작성하기</h4>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+
+			<!-- Modal body -->
+			<div class="modal-body">
+				<form name="qnaForm" id="qnaForm">
+					<div id="qnaProdPic-container">
+						<div id="qnaProdPic-container-head">
+							<span>상품사진</span> <br>
+						</div>
+						<div id="qnaProdPic-container-body">
+							<img src="cat-jump.png" id="qnaProdPic" class="qnaInsertPic"> <br> <!-- 여기 이미지를 상품페이지에서 가져오는 prod id를 해야함 -->
+						</div>
+					</div> <br>
+					
+					<label>상품명</label>&nbsp;&nbsp;&nbsp;
+					<input type="text" class="txt" id="prod" name="prod_id"> <br>
+					
+					<label>ID</label>&nbsp;&nbsp;&nbsp;
+					<input type="text" class="txt" id="writer" name="mem_id"> <br>
+					
+					<label>제목</label>
+					<input type="text" class="txt" id="subject" name="qna_title"> <br>
+
+					<label>암호</label>
+					<input type="password"  class="txt" id="password" name="qna_pass"> <br>
+
+					<label>내용</label>
+		            <br>
+        		    <textarea rows="5" cols="40"  class="txt" id="content"  name="qna_content"></textarea>
+            		<br>
+		            <br>
+		            <div id="confirmbtn-container">
+						<input type="button" value="완료" id="send">
+		            </div>
+				</form>
+			</div>
+			<!-- Modal footer -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-bs-dismiss="modal">닫기</button>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

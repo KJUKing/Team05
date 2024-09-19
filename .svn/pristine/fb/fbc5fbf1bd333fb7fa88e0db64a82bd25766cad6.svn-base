@@ -1,0 +1,66 @@
+package kr.or.ddit.review.service;
+
+import java.util.List;
+
+import kr.or.ddit.review.vo.ReviewVO;
+
+public interface IReviewService {
+	
+	
+	
+	/**
+	 *  DB의 전체 리뷰를 가져와서 List에 담아서 반환하는 메서드
+	 *  
+	 * @return ReviewVo객체가 저장된 List객체
+	 * 
+	 */
+	public List<ReviewVO>getAllReview();
+	
+	
+	
+	/**
+	 * 로그인된 회원의 리뷰 조회
+	 * @param memId
+	 * @return
+	 */
+	public List<ReviewVO> getMyReview(String memId);
+	
+	/**
+	 * 리뷰 insert
+	 * @param reviewVo
+	 * @return
+	 */
+	public int insertReview(ReviewVO reviewVo);
+	
+    Integer getProdId(String memId);
+    
+    
+    
+	/**
+	 * 리뷰상세보기
+	 * @param memId
+	 * @return
+	 */
+	public ReviewVO reviewDetail(String reviewId);
+	
+	/**
+	 * 리뷰수정
+	 * @param reviewVo
+	 * @return
+	 */
+	public int updateReview(ReviewVO reviewVo);
+	
+	/**
+	 * 리뷰삭제
+	 * @param reviewId
+	 * @return
+	 */
+	public int deleteReview(String reviewId);
+	
+	/**
+	 * 신고 횟수
+	 * @param reviewId
+	 * @return
+	 */
+	public int updateReport(String reviewId);
+}

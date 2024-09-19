@@ -1,0 +1,134 @@
+<%@page import="kr.or.ddit.prod.vo.OptionVO"%>
+<%@page import="kr.or.ddit.prod.vo.DeCateVO"%>
+<%@page import="kr.or.ddit.prod.vo.MainCateVO"%>
+<%@page import="kr.or.ddit.prod.vo.ProdVO"%>
+<%@page import="java.util.List"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<style type="text/css">
+	table, tr, td { border:1px solid blue; }
+	td { padding:5px;}
+</style>
+<script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery-3.7.1.js"></script>
+
+<script type="text/javascript">
+
+$(function(){
+	$("#addBtn").on("click", function(){
+		location.href = "<%=request.getContextPath()%>/prod/prodInsert.do";
+	});
+});
+</script>
+</head>
+<body>
+<%
+	List<ProdVO> prodList = (List<ProdVO>)request.getAttribute("prodList");
+	//이걸 불러와야하는데 안됨
+	List<MainCateVO> mcList = (List<MainCateVO>)request.getAttribute("mcList");
+	List<DeCateVO> dcList = (List<DeCateVO>)request.getAttribute("dcList");
+	List<OptionVO> optList = (List<OptionVO>)request.getAttribute("OptionList");
+	
+	int imagesPerRow = 4;
+%>
+
+<table border="1">
+    <% 
+    // 총 이미지 수와 행 수를 계산합니다.
+    int totalImages = prodList.size();
+    int numRows = (totalImages + imagesPerRow - 1) / imagesPerRow; // 필요한 행 수를 계산합니다.
+
+    for (int row = 0; row < numRows; row++) {
+    %>
+        <tr>
+            <% 
+            // 현재 행에 출력할 이미지의 시작 인덱스와 끝 인덱스를 계산합니다.
+            int startIdx = row * imagesPerRow;
+            int endIdx = Math.min(startIdx + imagesPerRow, totalImages);
+            
+            for (int col = startIdx; col < endIdx; col++) {
+                ProdVO pvo = prodList.get(col);
+                String prodId = pvo.getProd_id(); // prodId를 사용하여 링크를 만듭니다.
+                String imagePath = pvo.getProd_image();
+                String name = pvo.getProd_name();
+                String servletUrl = "prod/prodListView.do?prodId=" + prodId; // 서블릿으로 이동할 URL
+            %>
+                <td>
+                	<a href="<%=request.getContextPath()%>/<%=servletUrl%>">
+                    	<img src="<%= request.getContextPath() %>/images/prod/<%= pvo.getProd_image() %>" alt="<%=pvo.getProd_name()%>" width="300" height="300" />	
+                	</a>
+                </td>
+            <% 
+            }
+            %>
+        </tr>
+        <tr>
+            <% 
+            // 현재 행에 출력할 이름의 시작 인덱스와 끝 인덱스를 계산합니다.
+            for (int col = startIdx; col < endIdx; col++) {
+                ProdVO pvo = prodList.get(col);
+                String prodId = pvo.getProd_id(); // prodId를 사용하여 링크를 만듭니다.
+                String name = pvo.getProd_name();
+                String servletUrl = "/prod/prodListView.do?prodId=" + prodId; // 서블릿으로 이동할 URL
+            %>
+                <td>
+                    <a href="<%=request.getContextPath()%>/<%=servletUrl%>"><%= pvo.getProd_name() %></a>
+                </td>
+            <% 
+            }
+            %>
+        </tr>
+    <% 
+    }
+    %>
+</table>
+
+
+
+<h2>상품 목록 보기</h2>
+<table border="1">
+  <thead>
+    <tr>
+      <td colspan="9" style="text-align:right;">
+        <input type="button" id="addBtn" value="상품추가">
+      </td>
+    </tr>
+    <tr>
+      <th>상품 아이디</th>
+      <th>상품 입고날짜</th>
+      <th>상품 이름</th>
+      <th>상품 설명</th>
+      <th>상품 가격</th>
+      <th>상품 이미지</th>
+      <th>상품 상태</th>
+      <th>상품 할인률</th>
+      <th>외래 키</th>
+    </tr>
+  </thead>
+  <tbody>
+<%
+	for(ProdVO pvo : prodList) {
+%>  
+  <tr>
+    <td><%=pvo.getProd_id()%></td>
+    <td><%=pvo.getProd_date()%></td>
+    <td><%=pvo.getProd_name()%></td>
+    <td><%=pvo.getProd_content()%></td>
+    <td><%=pvo.getProd_price()%></td>
+    <td><%=pvo.getProd_image()%></td>
+    <td><%=pvo.getProd_yn()%></td>
+    <td><%=pvo.getProd_sale()%></td>
+    <td><%=pvo.getDcate_id()%></td>
+  </tr>
+<%
+	}
+%>
+  </tbody>
+
+</table>
+</body>
+</html>

@@ -1,0 +1,24 @@
+package kr.or.ddit.qna.controller;
+
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet("/qnaMain.do")
+public class QnaMain extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// 로그인 했을때 이미 session에 저장되어있기 때문에, session 가져오는거는 view에서 하면 됨
+		
+		// qnaMain 페이지로 이동하기
+        request.getRequestDispatcher("/FrontControllerPart?view=qnaMain").forward(request, response);
+	}
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		doGet(request, response);
+	}
+}

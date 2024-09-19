@@ -1,0 +1,37 @@
+package kr.or.ddit.member.controller;
+
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import kr.or.ddit.member.service.MemberService;
+
+@WebServlet("/member/sendVerificationEmail.do")
+public class SendVerificationEmailServlet extends HttpServlet {
+    private MemberService memberService;
+
+    public void init() {
+        String baseURL = getServletContext().getInitParameter("baseURL");
+        memberService = MemberService.getInstance(baseURL);
+    }
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String email = request.getParameter("email");
+        
+        try {
+            if (memberService.isEmailAvailable(email)) {
+                String verificationToken = memberService.generateEmailVerificationToken(email);
+                memberService.sendVerificationEmail(email, verificationToken);
+                response.getWriter().write("success");
+            } else {
+                response.getWriter().write("이미 사용 중인 이메일입니다.");
+            }
+        } catch (Exception e) {
+            response.getWriter().write("이메일 발송 중 오류가 발생했습니다.");
+        }
+    }
+}

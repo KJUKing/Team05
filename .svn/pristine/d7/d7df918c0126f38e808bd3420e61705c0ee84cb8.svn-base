@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="oprod">
+	
+	<insert id="insertOprod" parameterType="oprodVo">
+		insert into oprod (option_id, prod_id, oprod_qty)
+		values((SELECT option_id FROM option_table WHERE option_id = #{option_id})
+        	  ,(SELECT prod_id FROM prod WHERE prod_id = #{prod_id})
+        	  , oprod_qty = #{oprod_qty});
+	</insert>
+	
+	<delete id="deleteOprod" parameterType="String">
+		delete from oprod where prod_id = #{prod_id}
+	</delete>
+	
+	<update id="updateOprod" parameterType="oprodVo">
+		update oprod set oprod_qty = #{oprod_qty} where prod_id = #{prod_id}
+	</update>
+	
+	<select id="getAllOprod" resultType="oprodVo">
+		select * from oprod order by prod_id desc
+	</select>
+	
+</mapper>

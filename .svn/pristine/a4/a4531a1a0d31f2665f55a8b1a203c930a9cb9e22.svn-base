@@ -1,0 +1,165 @@
+package kr.or.ddit.review.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.session.SqlSession;
+
+import kr.or.ddit.review.vo.ReviewVO;
+import kr.or.ddit.util.MybatisUtil;
+
+
+public class ReviewDaoImpl implements IReviewDao {
+	
+	private static ReviewDaoImpl dao;
+	
+	private  ReviewDaoImpl() {}
+	
+	public static ReviewDaoImpl getInstance() {
+		if(dao==null) dao = new ReviewDaoImpl();
+		
+		return dao;
+	}
+		
+	@Override
+	public List<ReviewVO> getAllReview() {
+		SqlSession session = MybatisUtil.getSqlSession();  // MyBatis 처리용 객체 생성
+		List<ReviewVO> rList = null;  // 반환값이 저장될 변수
+		
+		try {
+			rList = session.selectList("review.getAllReview");
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(session!=null) session.close();
+		}
+		
+		return rList;
+	}
+
+	@Override
+	public int deleteReview(String reviewId) {
+		SqlSession session = MybatisUtil.getSqlSession();  // MyBatis 처리용 객체 생성
+		int cnt = 0;
+		
+		try {
+			cnt = session.delete("review.deleteReview", reviewId);
+			if(cnt > 0) session.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(session!=null) session.close();
+		}	
+		
+		return cnt;
+	}
+
+	@Override
+	public List<ReviewVO> getMyReview(String memId) {
+		SqlSession session = MybatisUtil.getSqlSession();  // MyBatis 처리용 객체 생성
+		List<ReviewVO> rList = null;  // 반환값이 저장될 변수
+		
+		try {
+			rList = session.selectList("review.getMyReview", memId);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(session!=null) session.close();
+		}
+		
+		return rList;
+	}
+
+	@Override
+	public int insertReview(ReviewVO reviewVo) {
+		SqlSession session = MybatisUtil.getSqlSession();  // MyBatis 처리용 객체 생성
+		int cnt = 0;
+		
+		try {
+			cnt = session.insert("review.insertReview", reviewVo);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(cnt > 0) session.commit();
+			if(session!=null) session.close();
+		}	
+		
+		return cnt;
+	}
+
+	@Override
+	public ReviewVO reviewDetail (String reviewId) {
+		SqlSession session = MybatisUtil.getSqlSession();  // MyBatis 처리용 객체 생성
+		ReviewVO review = null;
+		
+		try {
+			review = session.selectOne("review.reviewDetail", reviewId);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(session!=null) session.close();
+		}
+		
+		return review;
+	}
+
+	@Override
+	public Integer getProdId(String memId) {
+		 SqlSession session = MybatisUtil.getSqlSession();  // MyBatis 처리용 객체 생성
+	        Integer prodId = null;  // 반환값이 저장될 변수
+	        
+	        try {
+	            prodId = session.selectOne("review.getProdId", memId);
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        } finally {
+	            if (session != null) session.close();
+	        }
+	        
+	        return prodId;
+	}
+
+	@Override
+	public int updateReview(ReviewVO reviewVo) {
+		SqlSession session = MybatisUtil.getSqlSession();  // MyBatis 처리용 객체 생성
+		int cnt = 0;
+		
+		try {
+			cnt = session.update("review.updateReview", reviewVo);
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(cnt > 0) session.commit();
+			if(session!=null) session.close();
+		}	
+		
+		return cnt;
+	}
+
+	@Override
+	public int updateReport(String reviewId) {
+		SqlSession session = MybatisUtil.getSqlSession();  // MyBatis 처리용 객체 생성
+		int cnt = 0;
+		
+		try {
+			cnt = session.update("review.updateReport", reviewId);
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(cnt > 0) session.commit();
+			if(session!=null) session.close();
+		}	
+		
+		return cnt;
+	}
+	
+
+	
+
+
+}

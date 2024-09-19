@@ -1,0 +1,10 @@
+package kr.or.ddit.riturn.dao;
+
+import java.util.List;
+
+import kr.or.ddit.riturn.vo.RiturnVO;
+
+public interface IRiturnDao {
+	public List<RiturnVO> myBuyList();
+	
+}

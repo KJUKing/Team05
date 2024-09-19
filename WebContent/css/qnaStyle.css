@@ -1,0 +1,112 @@
+@charset "UTF-8";
+
+#qnaProdPic-container-head {
+	text-align: center;
+}
+#qnaProdPic-container-body {
+	width: 200px;
+	height: 200px;
+	border: 1px solid black;
+}
+#qnaProdPic-container-body img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+  margin: auto;
+}
+
+.container-main {
+	border: 1px solid black;
+	width: 1000px;
+	height: 600px;
+	
+	position: absolute;
+	left: 50%;
+	transform: translate(-500px);
+}
+
+#qnaNotice {	
+	width: 800px;
+	height: 200px;
+	border: 3px solid rgb(222, 222, 222);
+}
+
+
+.input-wrapper {
+    position: relative;
+}
+
+
+#prod2 {
+    /*width: 100%; /* 입력창이 부모 컨테이너의 폭에 맞게 조정 */
+    padding: 0;
+    box-sizing: border-box; /* padding이 전체 폭에 포함되도록 설정 */
+}
+
+
+
+
+
+#modal-prodName {
+	
+}
+
+.input-wrapper {
+	display: flex;
+	width: 100%;
+	height: 140px;
+}
+.modal-titles {
+	display: inline-block;
+	height: 100px;
+	margin-right: 10px;
+	line-height: 2;
+	
+}
+.modal-inputs {
+	display: inline-block;
+	width: 200px;
+	height: 100px;
+}
+.modal-inputs input {
+	width: 180px;
+	margin-bottom: 6px;
+}
+
+/* 상품명 dropdown */
+.prod-dropdown {
+	background: white;
+	position: absolute;
+	width: 180px;
+	border: 1px solid black;
+	height: 124px;
+	display: none;
+}
+.prod-dropdown div {
+    cursor: pointer;
+}
+.prod-dropdown div.selected {
+	background-color: #ddd;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

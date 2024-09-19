@@ -1,0 +1,137 @@
+<%@page import="kr.or.ddit.review.vo.ReviewVO"%>
+<%@page import="java.util.List"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>내가 쓴 리뷰 리스트 목록</title>
+<script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery-3.7.1.js"></script>
+<script type="text/javascript">
+  $(function(){
+      $('#btninsert').on("click", function(){
+          location.href="<%=request.getContextPath()%>/reviewInsert.do";
+      });
+  });
+</script>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f4f4f4;
+    }
+    h1 {
+        color: #333;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    th, td {
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+        text-align: center;
+    }
+    th {
+        background-color: #f8f8f8;
+        color: #333;
+    }
+    tr:nth-child(even) {
+        background-color: #fafafa;
+    }
+    tr:hover {
+        background-color: #f0f0f0;
+    }
+    .button-container {
+        text-align: right;
+        margin-bottom: 20px;
+    }
+    .button-container input {
+        padding: 10px 20px;
+        font-size: 16px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        background-color: #e0d6d6;
+        color: #333;
+    }
+    .button-container input:hover {
+        background-color: #d0cfcf;
+    }
+    .star-rating {
+        color: gold; /* 별 색깔 설정 */
+        font-size: 18px;
+    }
+</style>
+</head>
+<body>
+<h1>내가 쓴 리뷰 목록</h1>
+
+<div class="button-container">
+    <input id="btninsert" type="button" value="리뷰 쓰기"> 
+</div>
+
+<%
+    List<ReviewVO> rList = (List<ReviewVO>) request.getAttribute("myreviewList");
+    if (rList == null || rList.isEmpty()) {
+%>
+    <p>내가 쓴 리뷰 목록이 없습니다.</p>
+<%
+    } else {
+%>
+<table>
+    <thead>
+        <tr>
+            <th>리뷰 ID</th>
+            <th>리뷰 내용</th>
+            <th>리뷰 별점</th>
+            <th>리뷰 작성 날짜</th>
+            <th>상세 보기</th>
+        </tr>
+    </thead>
+    <tbody>
+        <%
+            for (ReviewVO review : rList) {
+                // 별점을 시각적으로 표시하기 위해 빈 별과 채워진 별을 계산
+                int starRating = review.getReview_star();
+                int emptyStars = 5 - starRating;
+        %>
+            <tr>
+                <td><%= review.getReview_id() %></td>
+                <td><%= review.getReview_content() %></td>
+                <td class="star-rating">
+                    <!-- 채워진 별 표시 -->
+                    <%
+                        for (int i = 0; i < starRating; i++) {
+                    %>
+                        &#9733; <!-- 채워진 별 Unicode -->
+                    <%
+                        }
+                    %>
+                    <!-- 빈 별 표시 -->
+                    <%
+                        for (int i = 0; i < emptyStars; i++) {
+                    %>
+                        &#9734; <!-- 빈 별 Unicode -->
+                    <%
+                        }
+                    %>
+                </td>
+                <td><%= review.getReview_date() %></td>
+                <td><a href="<%=request.getContextPath()%>/reviewDetail.do?review_id=<%=review.getReview_id()%>" style="color: #007BFF;">상세보기</a></td>
+            </tr>
+        <%
+            }
+        %>
+    </tbody>
+</table>
+<%
+    }
+%>
+</body>
+</html>

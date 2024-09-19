@@ -1,0 +1,40 @@
+package kr.or.ddit.member.controller;
+
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import kr.or.ddit.member.service.MemberService;
+import kr.or.ddit.member.vo.MemberVO;
+
+//@WebServlet("/member/verifyEmail.do")
+public class EmailVerificationController extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private MemberService memberService;
+
+    public void init() {
+        String baseURL = getServletContext().getInitParameter("baseURL");
+        memberService = MemberService.getInstance(baseURL);
+    }
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String email = request.getParameter("email");
+        String token = request.getParameter("token");
+
+        if (email != null && token != null) {
+        	if (memberService.verifyEmail(email, token)) {
+        	    // 이메일 인증 성공 상태를 저장
+        	    memberService.setEmailVerified(email, true);
+        	    request.setAttribute("verificationSuccess", true);
+        	    request.setAttribute("verifiedEmail", email);
+        	    request.getRequestDispatcher("/WEB-INF/views/member/emailVerificationConfirm.jsp").forward(request, response);
+        	    return;
+        	}
+        }
+
+        // 이메일 인증 실패
+        response.sendRedirect(request.getContextPath() + "/member/email-verification-failure.jsp");
+    }
+}

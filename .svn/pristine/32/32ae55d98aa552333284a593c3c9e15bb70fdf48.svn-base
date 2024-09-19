@@ -1,0 +1,118 @@
+package kr.or.ddit.qna.service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import kr.or.ddit.qna.dao.QnaDao;
+import kr.or.ddit.qna.vo.QnaVO;
+
+public class QnaService {
+
+	// dao 참조 객체 생성
+	private QnaDao dao;
+	
+	// 싱글톤 만들기 순서 1) 자기자신 참조 변수 생성 2) 기본생성자에 daoimpl getinstance 한줄 넣어서 private으로 생성 3) 자기자신 getinstance 생성
+	
+	// 1 자기자신 참조 변수 static 으로 생성
+	private static QnaService service;
+	
+	// 2 기본생성자 private으로 생성
+	private QnaService() {
+		dao = QnaDao.getInstance();
+	}
+	
+	// 3. 자기자신 getinstance 생성
+	public static QnaService getInstance() {
+		if(service == null) service = new QnaService();
+		return service;
+	}
+	
+	public List<QnaVO> qnaGetList() {
+		return dao.qnaGetList();
+	}
+	
+	public List<QnaVO> selectPostList(Map<String, Object> map) {
+		return dao.selectPostList(map);
+	}
+	
+	
+	public QnaVO pageInfo(int page, String stype, String sword) {
+		
+		QnaVO pvo = new QnaVO();
+		
+		// 전체 글 개수 가져오기
+		// map설정
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("stype", stype);
+		map.put("sword", sword);
+		// 여기서는 값이 있는지 없는지 판단하지 않고 무조건 보냄
+		
+		// 전체 글 개수 가져오기
+		int count = this.countPost(map); // 지금 현재 12개
+		// 임시
+		System.out.println("count 개수(12여야 함): " + count);
+		// 임시
+		
+		// 전체 페이지 수 구하기
+		int perList = pvo.getPostCount();
+		// 임시
+		System.out.println("perList 개수(5여야 함): " + perList);
+		// 임시
+		int totalPage = (int)Math.ceil((double)count / perList); // 더블로 바꿔서 두개 나누고, Math.ceil로 올려주고, 정수로 바꾸고
+		// 임시
+		System.out.println("totalPage 개수(3이어야 함): " + totalPage);
+		// 임시
+		
+		
+		// 마지막 페이지(예, 7)에서 마지막 데이터를 지웠을때
+		// page변수는 7(마지막페이지) -totalPage = 6으로 바뀜
+		if(page > totalPage) page = totalPage;
+		// 이게 핵심. 이거 없으면 그냥 계속 초기 값으로 계산을 하게 됨.
+		
+		
+		// start, end
+		int start = (page - 1) * perList + 1;
+		int end = start + perList - 1;
+		
+		if(count < end) end = count; // 마지막껄 넘어가면 안되니까, 값 맞춰주는거
+		
+		// startPage, endPage 1 2 3 4 5 / 6 7 8 9 10 / 11 ..
+		int perPage = pvo.getPageCount();
+		int startPage = ((page - 1) / perPage * perPage) + 1;
+		int endPage = startPage + perPage - 1;
+		if(endPage > totalPage) endPage = totalPage;
+		
+		pvo.setStart(start);
+		pvo.setEnd(end);
+		pvo.setStartPage(startPage);
+		pvo.setEndPage(endPage);
+		pvo.setTotalPage(totalPage);
+		
+		return pvo;
+	}
+	
+	public int countPost(Map<String, Object> map) {
+		return dao.countPost(map);
+	}
+	
+	public int insertPost(QnaVO vo) {
+		return dao.insertPost(vo);
+	}
+	
+	public int qnaUpdatePost(QnaVO vo) {
+		return dao.qnaUpdatePost(vo);
+	}
+	
+	public int qnaDeletePost(int num) {
+		return dao.qnaDeletePost(num);
+	}
+	
+	public int qnaInsertReply(QnaVO vo) {
+		return dao.qnaInsertReply(vo);
+	}
+
+	public List<QnaVO> qnaReplyList(int bonum) {
+		return dao.qnaReplyList(bonum);
+	}
+}

@@ -1,0 +1,45 @@
+package kr.or.ddit.qna.controller;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import kr.or.ddit.qna.service.QnaService;
+
+@WebServlet("/qnaTest.do")
+public class QnaTest extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// service 객체 얻기
+		
+		System.out.println("wtf");
+		/*
+		QnaService service = QnaService.getInstance();
+		Map<String, Object> map = new HashMap<String, Object>();
+		int count = service.countPost(map);
+		
+        StringBuilder stringBuilder = new StringBuilder();
+        String line;
+		
+        // JSON 문자열을 처리
+        String jsonString = stringBuilder.toString();
+        System.out.println("Received JSON: " + jsonString);
+
+        // 응답 생성
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter out = response.getWriter();
+        out.print("{\"status\": \"success\", \"receivedData\": " + jsonString + count + "}");
+        out.flush();
+		*/
+	}
+
+}

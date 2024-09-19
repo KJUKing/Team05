@@ -1,0 +1,113 @@
+<%@page import="kr.or.ddit.review.vo.ReviewVO"%>
+<%@page import="java.util.List"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>내가 쓴 리뷰 리스트 목록</title>
+<script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery-3.7.1.js"></script>
+<script type="text/javascript">
+  $(function(){
+      $('#btninsert').on("click", function(){
+          location.href="<%=request.getContextPath()%>/reviewInsert.do";
+      });
+  });
+</script>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f4f4f4; /* 연한 아이보리 배경 */
+    }
+    h1 {
+        color: #333;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        background-color: #fff; /* 흰색 배경 */
+        border: 1px solid #ddd;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    th, td {
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+        text-align: center;
+    }
+    th {
+        background-color: #f8f8f8; /* 연한 아이보리 */
+        color: #333;
+    }
+    tr:nth-child(even) {
+        background-color: #fafafa; /* 연한 회색 */
+    }
+    tr:hover {
+        background-color: #f0f0f0; /* 연한 회색 */
+    }
+    .button-container {
+        text-align: right;
+        margin-bottom: 20px;
+    }
+    .button-container input {
+        padding: 10px 20px;
+        font-size: 16px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        background-color: #e0d6d6; /* 연한 아이보리 계열 */
+        color: #333;
+    }
+    .button-container input:hover {
+        background-color: #d0cfcf; /* 약간 더 진한 아이보리 계열 */
+    }
+</style>
+</head>
+<body>
+<h1>내가 쓴 리뷰 목록</h1>
+
+<div class="button-container">
+    <input id="btninsert" type="button" value="리뷰 쓰기"> 
+</div>
+
+<%
+    List<ReviewVO> rList = (List<ReviewVO>) request.getAttribute("myreviewList");
+    if (rList == null || rList.isEmpty()) {
+%>
+    <p>내가 쓴 리뷰 목록이 없습니다.</p>
+<%
+    } else {
+%>
+<table>
+    <thead>
+        <tr>
+            <th>리뷰 ID</th>
+            <th>리뷰 내용</th>
+            <th>리뷰 별점</th>
+            <th>리뷰 작성 날짜</th>
+            <th>상세 보기</th>
+        </tr>
+    </thead>
+    <tbody>
+        <%
+            for (ReviewVO review : rList) {
+        %>
+            <tr>
+                <td><%= review.getReview_id() %></td>
+                <td><%= review.getReview_content() %></td>
+                <td><%= review.getReview_star() %></td>
+                <td><%= review.getReview_date() %></td>
+                <td><a href="<%=request.getContextPath()%>/reviewDetail.do?review_id=<%=review.getReview_id()%>" style="color: #007BFF;">상세보기</a></td>
+            </tr>
+        <%
+            }
+        %>
+    </tbody>
+</table>
+<%
+    }
+%>
+</body>
+</html>

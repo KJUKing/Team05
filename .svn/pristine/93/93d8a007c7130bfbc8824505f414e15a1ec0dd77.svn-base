@@ -1,0 +1,136 @@
+<%@page import="kr.or.ddit.report.vo.ReportVO"%>
+<%@page import="java.util.List"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>신고된 목록 보기</title>
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/css/styles.css">
+    <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery-3.7.1.js"></script>
+    <style>
+        body {
+            background-color: #ffffff; /* 흰색 배경 */
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h2 {
+            color: #333;
+            text-align: center;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="button"], input[type="submit"] {
+            background-color: #f2e6d6; /* 연한 아이보리 */
+            color: #333;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        input[type="button"]:hover, input[type="submit"]:hover {
+            background-color: #f0d4d4; /* 연한 핑크색 */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+            color: #333;
+        }
+
+        th {
+            background-color: #f8f8f8; /* 연한 회색 */
+        }
+
+        tr:hover {
+            background-color: #f0f0f0; /* 연한 회색 */
+        }
+
+        p {
+            text-align: center;
+            color: #333;
+        }
+    </style>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('#btnmyreview').click(function(){
+                history.back(); // 뒤로가기
+            });
+            
+            $('#btnmypage').click(function(){
+                location.href="<%=request.getContextPath()%>/member/myPage.do";
+            });
+        });
+    </script>
+</head>
+<body>
+    <h2>신고된 리뷰 목록</h2>
+    <div class="button-container">
+        <input id="btnmyreview" type="button" value="뒤로가기"> 
+        <input id="btnmypage" type="button" value="메인(My page)으로 가기"> 
+    </div>
+
+    <%
+        List<ReportVO> rList = (List<ReportVO>)request.getAttribute("reportList");
+        if(rList == null || rList.isEmpty()){
+    %>
+        <p>신고된 리뷰가 없습니다.</p>
+    <%
+        } else {
+    %>
+        <table>
+            <thead>
+                <tr>
+                    <th>신고번호</th>
+                    <th>신고된 시간</th>
+                    <th>신고된 회원 ID</th>
+                    <th>신고된 리뷰 ID</th>
+                    <th>리뷰 상태</th>
+                    <th>신고 상태 (PENDING, WITHDRAW)</th>
+                    <th>허위 신고 철회</th>
+                </tr>
+            </thead>
+            <tbody>
+            <%
+                for (ReportVO rvo : rList) {
+            %>
+                <tr>
+                    <td><%= rvo.getReport_id() %></td>
+                    <td><%= rvo.getReport_date() %></td>
+                    <td><%= rvo.getMem_id() %></td>
+                    <td><%= rvo.getReview_id() %></td>
+                    <td><%= rvo.getReview_status() %></td>
+                    <td><%= rvo.getReport_status() %></td>
+                    <td>
+                        <form action="<%= request.getContextPath() %>/withdrawReport.do" method="post">
+                            <input type="hidden" name="report_id" value="<%= rvo.getReport_id() %>">
+                            <input type="submit" value="허위신고철회하기" 
+                                <% if(!"PENDING".equals(rvo.getReport_status())) { %> disabled <% } %>>
+                        </form>
+                    </td>
+                </tr>
+            <%
+                }
+            %>
+            </tbody>
+        </table>
+    <%
+        }
+    %>
+</body>
+</html>

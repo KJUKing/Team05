@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="prod">
+
+	<resultMap id="prodResultMap" type="prodVo">
+		<result property="prod_id" column="PROD_ID"/>
+		<result property="prod_date" column="PROD_DATE"/>
+		<result property="prod_name" column="PROD_NAME"/>
+		<result property="prod_content" column="PROD_CONTENT"/>
+		<result property="prod_price" column="PROD_PRICE"/>
+		<result property="prod_image" column="PROD_IMAGE"/>
+		<result property="prod_yn" column="PROD_YN"/>
+		<result property="prod_sale" column="PROD_SALE"/>
+		<result property="dcate_id" column="DCATE_ID"/>
+	</resultMap>
+
+
+	<!-- 
+	<i	nsert id="insertProd" parameterType="prodVo">
+		insert into prod (prod_id, prod_date, prod_name, prod_content, prod_price,
+    					  prod_image, prod_yn, prod_sale, dcate_id) 
+    	values('P' || TO_CHAR(prod_seq.NEXTVAL, 'FM000000'), sysdate, #{prod_name}, #{prod_content}, #{prod_price},
+    	#{prod_image}, #{prod_yn}, #{prod_sale},#{dcate_id})
+	</insert>
+	 -->
+	
+	<insert id="insertProd" parameterType="prodVo">
+	
+	
+	 <selectKey keyProperty="prod_id"  order="BEFORE" resultType="string">
+	      select prod_seq.NEXTVAL from dual
+	   </selectKey>
+	   
+	   
+    	insert into prod (prod_id, prod_date, prod_name, prod_content, prod_price,
+                      	  prod_image, prod_yn, prod_sale, dcate_id) 
+    	values('P' || TO_CHAR(#{prod_id}, 'FM000000'), sysdate, #{prod_name}, #{prod_content}, #{prod_price},
+        #{prod_image}, #{prod_yn}, #{prod_sale}, #{dcate_id})
+        
+        
+       
+	</insert>
+	
+
+	 
+	<delete id="deleteProd" parameterType="String">
+		delete from prod where prod_id = #{prod_id}
+	</delete>
+	
+	<update id="updateProd" parameterType="prodVo">
+		update prod set 
+		prod_date = sysdate, prod_name = #{prod_name}, prod_content = #{prod_content}, prod_price = #{prod_price},
+		prod_image = #{prod_image}, prod_yn = #{prod_yn}, prod_sale = #{prod_sale},
+		dcate_id = (select dcate_id from detail_category where dcate_id = #{dcate_id})
+		where prod_id = #{prod_id}
+	</update>
+	
+	<select id="getAllProd" resultType="prodVo">
+		select * from prod order by prod_id desc
+	</select>
+	
+	<select id="getOneProd" parameterType="String" resultType="prodVo">
+		select * from prod where prod_id = #{prod_id}
+	</select>
+		
+	<select id="getWishListByMemberId" parameterType="string" resultType="prodVo">
+		SELECT *
+		FROM WISHLIST w
+				 JOIN PROD p ON w.PROD_ID = p.PROD_ID
+		WHERE w.MEM_ID = #{mem_id}
+	</select>
+
+	<!-- 상품리스트 전체 글 수 가져오기 -->
+	<select id="getTotalCount" parameterType="map" resultType="int">
+		SELECT COUNT(*)
+		FROM prod
+		<where>
+			<if test="stype != null and sword != null">
+				<choose>
+					<!-- stype 값이 'title'이면 PROD_NAME에서 검색 -->
+					<when test="stype == 'title'">
+						PROD_NAME LIKE '%' || #{sword} || '%'
+					</when>
+
+					<!-- stype 값이 'content'이면 PROD_CONTENT에서 검색 -->
+					<when test="stype == 'content'">
+						PROD_CONTENT LIKE '%' || #{sword} || '%'
+					</when>
+
+					<!-- stype 값이 'title_content'이면 제목과 내용에서 모두 검색 -->
+					<when test="stype == 'title_content'">
+						(PROD_NAME LIKE '%' || #{sword} || '%' OR PROD_CONTENT LIKE '%' || #{sword} || '%')
+					</when>
+
+				</choose>
+			</if>
+		</where>
+	</select>
+
+	<!--	페이지네이션 적용된 조회 쿼리 -->
+	<select id="getPaginatedProdList" parameterType="map" resultMap="prodResultMap">
+		SELECT * FROM (
+		SELECT ROWNUM AS rnum, A.*
+		FROM (
+		SELECT *
+		FROM prod
+		<where>
+			<if test="stype != null and sword != null">
+				<choose>
+					<!-- stype 값이 'title'이면 NOTI_TITLE에서 검색 -->
+					<when test="stype == 'title'">
+						PROD_NAME LIKE '%' || #{sword} || '%'
+					</when>
+
+					<!-- stype 값이 'content'이면 NOTI_CONTENT에서 검색 -->
+					<when test="stype == 'content'">
+						PROD_CONTENT LIKE '%' || #{sword} || '%'
+					</when>
+
+					<!-- stype 값이 'title_content'이면 제목과 내용에서 모두 검색 -->
+					<when test="stype == 'title_content'">
+						(PROD_NAME LIKE '%' || #{sword} || '%' OR PROD_CONTENT LIKE '%' || #{sword} || '%')
+					</when>
+				</choose>
+			</if>
+		</where>
+		ORDER BY PROD_ID DESC
+		) A
+		WHERE ROWNUM &lt;= #{end}
+		)
+		WHERE rnum &gt;= #{start}
+	</select>
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="option">
+<!-- 	
+	<insert id="insertOption" parameterType="optionVo">
+		insert into option_table (option_id, option_name, option_value)
+		values('O' || TO_CHAR(option_seq.NEXTVAL, 'FM000000'), #{option_name}, #{option_value})
+	</insert>
+	 -->
+	 
+	<insert id="insertOption" parameterType="optionVo">
+	
+	<selectKey keyProperty="option_id"  order="BEFORE" resultType="string">
+	      select option_seq.NEXTVAL from dual
+	   </selectKey>
+	
+		insert into option_table (option_id, option_name, option_value)
+		values('O' || TO_CHAR(#{option_id}, 'FM000000'), #{option_name}, #{option_value})
+	</insert>
+	
+
+
+	 
+	<delete id="deleteOption" parameterType="String">
+		delete from option_table where option_id = #{option_id}
+	</delete>
+	
+	<update id="updateOption" parameterType="optionVo">
+		update option_table set
+		option_name = #{option_name}, option_value = #{option_value}
+		where option_id = #{option_id}
+	</update>
+	
+	<select id="getAllOption" resultType="optionVo">
+		select * from option_table order by option_id desc
+	</select>
+	
+	<select id="getOneOption" parameterType="String" resultType="optionVo">
+		select * from option_table where option_id in (
+    		select option_id from oprod where prod_id = #{prod_id})
+	</select>
+
+
+</mapper>

@@ -1,0 +1,80 @@
+package kr.or.ddit.wish.dao;
+
+import kr.or.ddit.util.MybatisUtil;
+import kr.or.ddit.wish.vo.WishListVO;
+import org.apache.ibatis.session.SqlSession;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class WishListDaoImpl implements IWishListDao {
+
+
+    private WishListDaoImpl() {
+
+    }
+
+    private static IWishListDao dao;
+
+    public static IWishListDao getInstance() {
+        if (dao == null) {
+            dao = new WishListDaoImpl();
+        }
+        return dao;
+    }
+
+
+    @Override
+    public int addToWishList(WishListVO wishVo) {
+        int  cnt = 0;
+        SqlSession sql = null;
+
+        try {
+            sql = MybatisUtil.getSqlSession();
+
+            cnt = sql.insert("wish.addToWishList", wishVo);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            sql.commit();
+            sql.close();
+        }
+        //3 리턴
+        return cnt;
+    }
+
+    @Override
+    public int removeFromWishList(WishListVO wishVo) {
+        int  cnt = 0;
+        SqlSession sql = null;
+        //2실행
+        try {
+            sql = MybatisUtil.getSqlSession();
+            cnt = sql.delete("wish.removeFromWishList", wishVo);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            sql.commit();
+            sql.close();
+        }
+        return cnt;
+    }
+
+    @Override
+    public boolean isProductWishListed(String memId, String prodId) {
+        SqlSession session = MybatisUtil.getSqlSession();
+        Boolean isChecked = false;
+        try {
+            Map<String, Object> paramMap = new HashMap<>();
+            paramMap.put("memId", memId);
+            paramMap.put("prodId", prodId);
+
+            isChecked = session.selectOne("wish.isProductWishListed", paramMap);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            session.close();
+        }
+        return isChecked != null ? isChecked : false;
+    }
+}

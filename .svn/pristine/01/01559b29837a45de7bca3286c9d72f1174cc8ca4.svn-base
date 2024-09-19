@@ -1,0 +1,89 @@
+package kr.or.ddit.member.dao;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.ibatis.session.SqlSession;
+
+import kr.or.ddit.util.MybatisUtil;
+import kr.or.ddit.member.vo.MemberVO;
+
+public class MemberDao {
+    // ID로 회원 정보를 조회하는 메소드
+    public MemberVO getMemberById(String memId) {
+        try (SqlSession sqlSession = MybatisUtil.getSqlSession()) {
+            return sqlSession.selectOne("Member.getMemberById", memId);
+        }
+    }
+
+    // 새로운 회원을 데이터베이스에 추가하는 메소드
+    public int insertMember(MemberVO member) {
+        try (SqlSession sqlSession = MybatisUtil.getSqlSession()) {
+            int result = sqlSession.insert("Member.insertMember", member);
+            sqlSession.commit();
+            return result;
+        }
+    }
+
+    // 모든 회원 정보를 조회하는 메소드
+    public List<MemberVO> getAllMembers() {
+        try (SqlSession sqlSession = MybatisUtil.getSqlSession()) {
+            return sqlSession.selectList("Member.getAllMembers");
+        }
+    }
+
+    // 회원 정보를 수정하는 메소드
+    public int updateMember(MemberVO member) {
+        try (SqlSession sqlSession = MybatisUtil.getSqlSession()) {
+            int result = sqlSession.update("Member.updateMember", member);
+            sqlSession.commit();
+            return result;
+        }
+    }
+
+    // 회원을 삭제하는 메소드 (실제로는 MEM_DELYN 플래그를 'Y'로 설정)
+    public int deleteMember(String memId) {
+        try (SqlSession sqlSession = MybatisUtil.getSqlSession()) {
+            int result = sqlSession.update("Member.deleteMember", memId);
+            sqlSession.commit();
+            return result;
+        }
+    }
+
+    // 이름, 생년월일, 전화번호로 아이디를 찾는 메소드
+    public String findIdByNameBirthdatePhone(String name, String birthdate, String phone) {
+        try (SqlSession sqlSession = MybatisUtil.getSqlSession()) {
+            MemberVO params = new MemberVO();
+            params.setMemName(name);
+            // birthdate를 Date 객체로 변환
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            try {
+                Date birth = sdf.parse(birthdate);
+                params.setMemBirth(birth);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+            params.setMemPhone(phone);
+            return sqlSession.selectOne("Member.findIdByNameBirthdatePhone", params);
+        }
+    }
+
+    // 아이디와 이메일로 유효한 사용자인지 확인하는 메소드
+    public boolean isValidUserForPasswordReset(String id, String email) {
+        try (SqlSession sqlSession = MybatisUtil.getSqlSession()) {
+            MemberVO params = new MemberVO();
+            params.setMemId(id);
+            params.setMemEmail(email);
+            Integer count = sqlSession.selectOne("Member.isValidUserForPasswordReset", params);
+            return count != null && count > 0;
+        }
+    }
+    public MemberVO getMemberByEmail(String email) {
+        try (SqlSession sqlSession = MybatisUtil.getSqlSession()) {
+            return sqlSession.selectOne("Member.getMemberByEmail", email);
+        }
+    }
+    
+}

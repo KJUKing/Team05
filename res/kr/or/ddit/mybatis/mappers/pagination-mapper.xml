@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="page">
+
+	<!-- 페이지네이션에 사용될 공통 쿼리 -->
+	<sql id="paginationCondition">
+		WHERE ROWNUM BETWEEN #{start} AND #{end}
+	</sql>
+
+	<select id="getTotalCount" parameterType="map" resultType="int">
+		SELECT COUNT(*)
+		FROM some_table
+		<where>
+			<if test="stype != null and sword != null">
+				${stype} LIKE '%' || #{sword} || '%'
+			</if>
+		</where>
+	</select>
+
+	<select id="getPaginatedList" parameterType="map" resultType="map">
+		SELECT * FROM (
+		SELECT ROWNUM AS rnum, A.* FROM (
+		SELECT * FROM some_table
+		<where>
+			<if test="stype != null and sword != null">
+				${stype} LIKE '%' || #{sword} || '%'
+			</if>
+		</where>
+		ORDER BY some_column
+		) A WHERE ROWNUM &lt;= #{end}
+		) WHERE rnum &gt;= #{start}
+	</select>
+</mapper>

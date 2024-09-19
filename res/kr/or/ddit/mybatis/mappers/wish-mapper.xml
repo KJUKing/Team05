@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="wish">
+
+<!--	insert문에서 wish_id값을 시퀀스값으로 id를 생성할지
+		mem_id와 prod_id가 합쳐진 값을 자동생성할지 고민했는데
+		위시리스트는 어디에 참고되지않는 독립된테이블이라서
+		시퀀스테이블로 결정 함-->
+
+	<!-- 위시리스트에 추가 (insert) -->
+	<insert id="addToWishList" parameterType="wishVo">
+		INSERT INTO wishlist (wish_id, mem_id, prod_id, wish_date)
+		VALUES (WISHLIST_SEQ.NEXTVAL, #{mem_id}, #{prod_id}, SYSDATE)
+	</insert>
+
+	<!-- 위시리스트에서 삭제 (delete) -->
+	<delete id="removeFromWishList" parameterType="wishVo">
+		DELETE FROM wishlist
+		WHERE mem_id = #{mem_id} AND prod_id = #{prod_id}
+	</delete>
+
+	<select id="isProductWishListed" parameterType="map" resultType="boolean">
+		SELECT COUNT(*)
+		FROM wishlist
+		WHERE mem_id = #{memId}
+		  AND prod_id = #{prodId}
+	</select>
+</mapper>

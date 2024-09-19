@@ -1,0 +1,37 @@
+package kr.or.ddit.riturn.dao;
+
+import java.util.List;
+
+import org.apache.ibatis.session.SqlSession;
+
+import kr.or.ddit.riturn.vo.RiturnVO;
+import kr.or.ddit.util.MybatisUtil;
+
+public class RiturnDaoImpl implements IRiturnDao {
+	private static RiturnDaoImpl dao;
+	
+	private RiturnDaoImpl() {}
+	
+	public static RiturnDaoImpl getInstance() {
+		if(dao==null) dao = new RiturnDaoImpl();
+		
+		return dao;
+	}
+
+	@Override
+	public List<RiturnVO> myBuyList() {
+		SqlSession session = null;
+		List<RiturnVO> riturnList = null;
+		
+		try {
+			session = MybatisUtil.getSqlSession();
+			
+			riturnList = session.selectList("riturn.myBuyList");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return riturnList;
+	}
+}

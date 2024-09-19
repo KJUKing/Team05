@@ -1,0 +1,142 @@
+package kr.or.ddit.member.controller;
+// 서버 측 유효성 검사를 담당합니다.
+// 실제 회원 등록 로직을 처리합니다.
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import kr.or.ddit.member.service.MemberService;
+import kr.or.ddit.member.vo.MemberVO;
+
+
+// URL 매핑: /member/register.do로 접근 시 이 서블릿이 처리함
+@WebServlet("/member/register.do")
+public class RegisterController extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private MemberService memberService;
+
+    // 서블릿 초기화 시 MemberService 인스턴스 생성
+    public void init() {
+        String baseURL = getServletContext().getInitParameter("baseURL");
+        memberService = MemberService.getInstance(baseURL);
+    }
+
+    // GET 요청 처리: 회원가입 폼 표시
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // register.jsp로 포워딩하여 회원가입 폼 표시
+        request.getRequestDispatcher("/WEB-INF/views/member/register.jsp").forward(request, response);
+    }
+
+    // POST 요청 처리: 회원가입 처리
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setCharacterEncoding("utf-8");
+        // 폼에서 전송된 데이터 추출
+        String memId = request.getParameter("memId");
+        String memPass = request.getParameter("memPass");
+        String memPass2 = request.getParameter("memPass2");
+        String memName = request.getParameter("memName");
+        String memEmail = request.getParameter("memEmail");
+        String memPhone = request.getParameter("memPhone");
+        String birthStr = request.getParameter("memBirth");
+        String memZipcode = request.getParameter("memZipcode");
+        String memAddress = request.getParameter("memAddress");
+        String memDetailAddress = request.getParameter("memDetailAddress");
+        
+        // 모든 필드가 비어있지 않은지 확인 (서버 측 검증)
+        if (memId == null || memId.trim().isEmpty() ||
+            memPass == null || memPass.trim().isEmpty() ||
+            memPass2 == null || memPass2.trim().isEmpty() ||
+            memName == null || memName.trim().isEmpty() ||
+            memEmail == null || memEmail.trim().isEmpty() ||
+            memPhone == null || memPhone.trim().isEmpty() ||
+            birthStr == null || birthStr.trim().isEmpty() ||
+            memZipcode == null || memZipcode.trim().isEmpty() ||
+            memAddress == null || memAddress.trim().isEmpty() ||
+            memDetailAddress == null || memDetailAddress.trim().isEmpty()) {
+            
+            request.setAttribute("error", "모든 항목을 입력해주세요.");
+            request.getRequestDispatcher("/WEB-INF/views/member/register.jsp").forward(request, response);
+            return;
+        }
+
+     // 1. ID 중복 확인
+        if (!memberService.isIdAvailable(memId)) {
+            request.setAttribute("error", "이미 사용 중인 ID입니다.");
+            request.getRequestDispatcher("/WEB-INF/views/member/register.jsp").forward(request, response);
+            return;
+        }
+        
+        // 2. 이메일 중복 확인
+        if (!memberService.isEmailAvailable(memEmail)) {
+            request.setAttribute("error", "이미 사용 중인 이메일입니다.");
+            request.getRequestDispatcher("/WEB-INF/views/member/register.jsp").forward(request, response);
+            return;
+        }
+
+        // 3. 비밀번호 확인 (서버 측에서도 재검증)
+        if (!memPass.equals(memPass2)) {
+            request.setAttribute("error", "비밀번호가 일치하지 않습니다.");
+            request.getRequestDispatcher("/WEB-INF/views/member/register.jsp").forward(request, response);
+            return;
+        }
+        
+        // 4. 이메일 인증 여부 확인
+        if (!memberService.isEmailVerified(memEmail)) {
+            request.setAttribute("error", "이메일 인증이 완료되지 않았습니다.");
+            request.getRequestDispatcher("/WEB-INF/views/member/register.jsp").forward(request, response);
+            return;
+        }
+
+
+        // MemberVO 객체 생성 및 데이터 설정
+        MemberVO member = new MemberVO();
+        member.setMemId(memId);
+        member.setMemName(memName);
+        member.setMemPass(memPass);
+        member.setMemEmail(memEmail);
+        member.setMemPhone(memPhone);
+        member.setMemZipcode(memZipcode);
+        member.setMemAddress(memAddress);
+        member.setMemDetailAddress(memDetailAddress);
+
+     // 5. 생년월일 처리
+        if (birthStr != null && !birthStr.isEmpty()) {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                Date birthDate = sdf.parse(birthStr);
+                member.setMemBirth(birthDate);
+            } catch (ParseException e) {
+                request.setAttribute("error", "올바르지 않은 생년월일 형식입니다.");
+                request.getRequestDispatcher("/WEB-INF/views/member/register.jsp").forward(request, response);
+                return;
+            }
+        }
+
+        member.setMemDelyn("N");  // 회원 삭제 여부 초기값 설정
+
+        try {
+            // 이메일 인증이 완료되었으므로, 회원 등록 진행
+            boolean result = memberService.registerMember(member);
+            if (result) {
+                // 회원 등록 성공 시 성공 페이지로 이동
+                request.getRequestDispatcher("/WEB-INF/views/member/registerSuccess.jsp").forward(request, response);
+            } else {
+                // 회원 등록 실패 시 에러 메시지와 함께 회원가입 페이지로 리다이렉트
+                request.setAttribute("error", "회원 등록에 실패했습니다.");
+                request.getRequestDispatcher("/WEB-INF/views/member/register.jsp").forward(request, response);
+            }
+        } catch (Exception e) {
+            // 예외 발생 시 에러 메시지와 함께 회원가입 페이지로 리다이렉트
+            request.setAttribute("error", "회원 등록 중 오류가 발생했습니다.");
+            request.getRequestDispatcher("/WEB-INF/views/member/register.jsp").forward(request, response);
+        }
+    }
+}

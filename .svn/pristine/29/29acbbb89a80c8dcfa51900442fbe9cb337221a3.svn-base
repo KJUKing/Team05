@@ -1,0 +1,52 @@
+<%@ page import="java.util.List" %>
+<%@ page import="kr.or.ddit.qna.vo.QnaVO" %>
+<html>
+<head><title>QnA List</title></head>
+<body>
+    <h1>QnA List</h1>
+    <table>
+        <tr>
+            <th>Title</th>
+            <th>Content</th>
+        </tr>
+        <% 
+        List<QnaVO> qnaList = (List<QnaVO>) request.getAttribute("qList");
+        for (QnaVO qna : qnaList) { 
+        %>
+            <tr>
+                <td><%= qna.getQna_title() %></td>
+                <td><%= qna.getQna_content() %></td>
+            </tr>
+        <% 
+        } 
+        %>
+    </table>
+
+    <!-- Pagination -->
+    <div>
+        <% 
+        int currentPage = (Integer) request.getAttribute("currentPage");
+        int totalPages = (Integer) request.getAttribute("totalPages");
+        if (currentPage > 1) { 
+        %>
+            <a href="?page=<%= currentPage - 1 %>">Previous</a>
+        <% 
+        } 
+        %>
+        <% 
+        for (int i = 1; i <= totalPages; i++) { 
+        %>
+            <a href="?page=<%= i %>" <% if (i == currentPage) { %>style="font-weight: bold;" <% } %>><%= i %></a>
+        <% 
+        } 
+        %>
+        <% 
+        if (currentPage < totalPages) { 
+        %>
+            <a href="?page=<%= currentPage + 1 %>">Next</a>
+        <% 
+        } 
+        %>
+    </div>
+</body>
+</html>

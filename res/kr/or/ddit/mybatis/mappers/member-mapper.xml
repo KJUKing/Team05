@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Member">
+
+    <!-- 회원 정보를 매핑하는 resultMap -->
+    <resultMap id="memberResultMap" type="memVo">
+        <!-- 각 컬럼과 MemberVO의 필드를 매핑 -->
+        <id property="memId" column="MEM_ID" />
+        <result property="memName" column="MEM_NAME" />
+        <result property="memPass" column="MEM_PASS" />
+        <result property="memBirth" column="MEM_BIRTH" />
+        <result property="memEmail" column="MEM_EMAIL" />
+        <result property="memPhone" column="MEM_PHONE" />
+        <result property="memZipcode" column="MEM_ZIPCODE" />
+        <result property="memAddress" column="MEM_ADDRESS" />
+        <result property="memDetailAddress" column="MEM_DETAIL_ADDRESS" />
+        <result property="memRole" column="MEM_ROLE" />
+        <result property="memJoin" column="MEM_JOIN" />
+        <result property="memMileage" column="MEM_MILEAGE" />
+        <result property="memStatus" column="MEM_STATUS" />
+        <result property="memDelyn" column="MEM_DELYN" />
+    </resultMap>
+
+    <!-- ID로 회원 정보를 조회하는 쿼리 -->
+    <select id="getMemberById" parameterType="string" resultMap="memberResultMap">
+        SELECT * FROM MEMBER WHERE MEM_ID = #{memId} AND MEM_DELYN = 'N'
+    </select>
+
+    <!-- 새로운 회원을 등록하는 쿼리 -->
+    <insert id="insertMember" parameterType="memVo">
+        INSERT INTO MEMBER (
+            MEM_ID, MEM_NAME, MEM_PASS, MEM_BIRTH, MEM_EMAIL, MEM_PHONE, 
+            MEM_ZIPCODE, MEM_ADDRESS, MEM_DETAIL_ADDRESS,
+            MEM_ROLE, MEM_JOIN, MEM_MILEAGE, MEM_STATUS, MEM_DELYN
+        ) VALUES (
+            #{memId}, #{memName}, #{memPass}, #{memBirth}, #{memEmail}, #{memPhone},
+            #{memZipcode}, #{memAddress}, #{memDetailAddress},
+            0, SYSDATE, 0, 1, 'N'
+        )
+    </insert>
+
+    <!-- 모든 회원 정보를 조회하는 쿼리 -->
+    <select id="getAllMembers" resultMap="memberResultMap">
+        SELECT * FROM MEMBER WHERE MEM_DELYN = 'N'
+    </select>
+
+    <!-- 회원 정보를 수정하는 쿼리 -->
+    <update id="updateMember" parameterType="memVo">
+        UPDATE MEMBER 
+        SET MEM_NAME = #{memName}, 
+            MEM_PASS = #{memPass}, 
+            MEM_BIRTH = #{memBirth}, 
+            MEM_EMAIL = #{memEmail}, 
+            MEM_PHONE = #{memPhone}, 
+            MEM_ZIPCODE = #{memZipcode}, 
+            MEM_ADDRESS = #{memAddress}, 
+            MEM_DETAIL_ADDRESS = #{memDetailAddress}
+        WHERE MEM_ID = #{memId}
+    </update>
+
+    <!-- 회원을 삭제(비활성화)하는 쿼리 -->
+    <update id="deleteMember" parameterType="string">
+        UPDATE MEMBER 
+        SET MEM_DELYN = 'Y' 
+        WHERE MEM_ID = #{memId}
+    </update>
+    
+    <!-- 이름, 생년월일, 전화번호로 아이디를 찾는 쿼리 -->
+    <select id="findIdByNameBirthdatePhone" parameterType="memVo" resultType="string">
+        SELECT MEM_ID 
+        FROM MEMBER 
+        WHERE MEM_NAME = #{memName} 
+        AND MEM_BIRTH = #{memBirth} 
+        AND MEM_PHONE = #{memPhone}
+        AND MEM_DELYN = 'N'
+    </select>
+
+    <!-- 아이디와 이메일로 유효한 사용자인지 확인하는 쿼리 -->
+    <select id="isValidUserForPasswordReset" parameterType="memVo" resultType="int">
+        SELECT COUNT(*) 
+        FROM MEMBER 
+        WHERE MEM_ID = #{memId} 
+        AND MEM_EMAIL = #{memEmail}
+        AND MEM_DELYN = 'N'
+    </select>
+    
+     <!-- 이메일로 회원 정보를 조회하는 쿼리 -->
+    <select id="getMemberByEmail" parameterType="string" resultMap="memberResultMap">
+    SELECT * FROM MEMBER WHERE MEM_EMAIL = #{email} AND MEM_DELYN = 'N'
+     </select>
+</mapper>

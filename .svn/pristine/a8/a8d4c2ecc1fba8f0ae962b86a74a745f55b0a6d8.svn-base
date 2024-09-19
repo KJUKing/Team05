@@ -1,0 +1,133 @@
+package kr.or.ddit.express.dao;
+
+import java.util.List;
+
+import org.apache.ibatis.session.SqlSession;
+
+import kr.or.ddit.express.vo.ExpressVO;
+import kr.or.ddit.util.MybatisUtil;
+
+public class ExpressDaoImpl implements IExpressDao {
+	
+	private static ExpressDaoImpl dao;
+	
+	private ExpressDaoImpl(){}
+	
+	public static ExpressDaoImpl getInstance() {
+		if(dao==null) dao = new ExpressDaoImpl();
+		
+		return dao;
+	}
+
+	@Override
+	public List<ExpressVO> getAllExpress() {
+		SqlSession session = null;
+		List<ExpressVO> list = null;
+		
+		try {
+			session = MybatisUtil.getSqlSession();
+			
+			list = session.selectList("express.getAllExpress");
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			session.close();
+			
+		}
+		return list;
+	}
+	
+	@Override
+	public ExpressVO detailExpress(String exId) {
+		SqlSession session = null;
+		ExpressVO exVo = null;
+		
+		try {
+			session = MybatisUtil.getSqlSession();
+			
+			exVo = session.selectOne("express.detailExpress", exId);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return exVo;
+	}
+
+	@Override
+	public int insertExpress(ExpressVO exVo) {
+		SqlSession session = null;
+		int cnt = 0;
+		
+		try {
+			session = MybatisUtil.getSqlSession();
+			
+			cnt = session.insert("express.insertExpress",exVo);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			session.commit();
+			session.close();
+		}
+		return cnt;
+	}
+
+	@Override
+	public int updateExpress(ExpressVO exVo) {
+		SqlSession session = null;
+		int cnt = 0;
+		
+		try {
+			session = MybatisUtil.getSqlSession();
+			
+			cnt = session.update("express.updateExpress",exVo);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			session.commit();
+			session.close();
+		}
+		return cnt;
+	}
+	
+
+	@Override
+	public int deleteExpress(String exId) {
+		SqlSession session = null;
+		int cnt = 0;
+		
+		try {
+			session = MybatisUtil.getSqlSession();
+			
+			cnt = session.update("express.deleteExpress",exId);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			session.commit();
+			session.close();
+		}
+		return cnt;
+	}
+
+	@Override
+	public List<ExpressVO> trackDelivery(String cartId) {
+		SqlSession session = null;
+		List<ExpressVO> exList = null;
+		
+		try {
+			session = MybatisUtil.getSqlSession();
+			
+			exList = session.selectList("express.trackDelivery", cartId);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return exList;
+	}
+
+	
+}

@@ -1,0 +1,160 @@
+<%@ page import="java.util.List"%>
+<%@ page import="kr.or.ddit.notice.vo.NoticeVO" %>
+<%@ page import="kr.or.ddit.util.PageVO" %>
+<%@ page import="java.text.SimpleDateFormat" %>
+<%@ page contentType="text/html;charset=UTF-8" %>
+
+<div class="container">
+    <h2 class="title">
+        <a href="<%= request.getContextPath() %>/notice/noticeList.do" style="text-decoration: none; color: black;">
+            공지사항
+        </a>
+    </h2>
+
+    <!-- 검색창 추가 -->
+    <div class="search-bar" style="text-align: right; margin-bottom: 20px;">
+        <form action="<%= request.getContextPath() %>/notice/noticeList.do" method="get">
+            <!-- 검색 조건 선택 -->
+            <select name="stype" class="form-control" style="display: inline-block; width: auto; margin-right: 10px;">
+                <option value="title">제목</option>
+                <option value="content">내용</option>
+                <option value="title_content">제목+내용</option>
+                <option value="writer">작성자</option>
+            </select>
+
+            <!-- 검색어 입력 -->
+            <input type="text" name="sword" placeholder="검색어 입력" class="form-control" style="display: inline-block; width: auto;">
+
+            <!-- 검색 버튼 -->
+            <button type="submit" class="btn">검색</button>
+        </form>
+    </div>
+
+    <table class="notice-table">
+        <thead>
+        <tr>
+            <th>번호</th>
+            <th>제목</th>
+            <th>작성자</th>
+            <th>작성일</th>
+        </tr>
+        </thead>
+        <tbody>
+        <%
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yy-MM-dd"); // yy-MM-dd 형식 지정
+            if (request.getAttribute("noticeList") != null) {
+                List<NoticeVO> noticeList = (List<NoticeVO>) request.getAttribute("noticeList");
+                for (NoticeVO notice : noticeList) {
+                    String formattedDate = dateFormat.format(notice.getNotiDate());
+        %>
+        <tr>
+            <td><%= notice.getNotiNo() %></td>
+            <td><a href="<%= request.getContextPath() %>/notice/noticeDetail.do?notiNo=<%= notice.getNotiNo() %>
+                &stype=<%= request.getParameter("stype") %>
+                &sword=<%= request.getParameter("sword") %>">
+                <%= notice.getNotiTitle() %>
+            </a></td>
+            </a></td>
+            <td><%= notice.getAdminId() %></td> <!-- 작성자 위치 -->
+            <td><%= formattedDate %></td> <!-- 날짜 포맷 적용 -->
+        </tr>
+        <%    }
+        } %>
+        </tbody>
+    </table>
+
+    <!-- 페이지네이션 -->
+    <div class="pagination">
+        <%
+            PageVO pageInfo = (PageVO) request.getAttribute("pageInfo");
+
+            if (pageInfo != null) {
+                if (pageInfo.getStartPage() > 1) { %>
+        <a href="<%= request.getContextPath() %>/notice/noticeList.do?page=<%= pageInfo.getStartPage() - 1 %>">이전</a>
+        <% }
+            for (int i = pageInfo.getStartPage(); i <= pageInfo.getEndPage(); i++) { %>
+        <a href="<%= request.getContextPath() %>/notice/noticeList.do?page=<%= i %>"><%= i %></a>
+        <% }
+            if (pageInfo.getEndPage() < pageInfo.getTotalPage()) { %>
+        <a href="<%= request.getContextPath() %>/notice/noticeList.do?page=<%= pageInfo.getEndPage() + 1 %>">다음</a>
+        <% }
+        }
+        %>
+    </div>
+
+    <!-- 글쓰기 버튼 -->
+    <div class="write-btn">
+        <a href="<%= request.getContextPath() %>/notice/insertNotice.do" class="btn">글쓰기</a>
+    </div>
+</div>
+
+<!-- 스타일링 -->
+<style>
+    .container {
+        width: 80%;
+        margin: 0 auto;
+    }
+
+    .title {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .notice-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    .notice-table th, .notice-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    .notice-table th {
+        background-color: #f2f2f2;
+    }
+
+    .pagination {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .pagination a {
+        margin: 0 5px;
+        text-decoration: none;
+        color: #007bff;
+    }
+
+    .write-btn {
+        text-align: right;
+    }
+
+    .write-btn button {
+        padding: 8px 12px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    .write-btn button:hover {
+        background-color: #0056b3;
+    }
+
+    .btn {
+        padding: 8px 12px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn:hover {
+        background-color: #0056b3;
+    }
+</style>

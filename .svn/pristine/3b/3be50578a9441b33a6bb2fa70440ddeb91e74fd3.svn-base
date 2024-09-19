@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="card">
+	
+	<select id="getAllCard" resultType="cardVo">
+		select * from card
+	</select>
+	
+	<select id="detailCard" resultType="cardVo" parameterType="string">
+		select * from card where card_id = #{card_id}
+	</select>
+	
+	<insert id="cardInsert" parameterType="cardVo">
+		insert into card(card_name)
+		values(#{card_name})
+	</insert>
+	
+	<delete id="cardDelete" parameterType="string">
+		delete from card where card_id = #{card_id}
+	</delete>
+	
+</mapper>

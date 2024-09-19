@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="prod">
+	
+	<!-- 
+	<i	nsert id="insertProd" parameterType="prodVo">
+		insert into prod (prod_id, prod_date, prod_name, prod_content, prod_price,
+    					  prod_image, prod_yn, prod_sale, dcate_id) 
+    	values('P' || TO_CHAR(prod_seq.NEXTVAL, 'FM000000'), sysdate, #{prod_name}, #{prod_content}, #{prod_price},
+    	#{prod_image}, #{prod_yn}, #{prod_sale},#{dcate_id})
+	</insert>
+	 -->
+	
+	
+	
+	<insert id="insertProd" parameterType="prodVo">
+	
+	
+	 <selectKey keyProperty="prod_id"  order="BEFORE" resultType="string">
+	      select prod_seq.NEXTVAL from dual
+	   </selectKey>
+	   
+	   
+    	insert into prod (prod_id, prod_date, prod_name, prod_content, prod_price,
+                      	  prod_image, prod_yn, prod_sale, dcate_id) 
+    	values('P' || TO_CHAR(#{prod_id}, 'FM000000'), sysdate, #{prod_name}, #{prod_content}, #{prod_price},
+        #{prod_image}, #{prod_yn}, #{prod_sale}, #{dcate_id})
+        
+        
+       
+	</insert>
+	
+
+	 
+	<delete id="deleteProd" parameterType="String">
+		delete from prod where prod_id = #{prod_id}
+	</delete>
+	
+	<update id="updateProd" parameterType="prodVo">
+		update prod set 
+		prod_date = sysdate, prod_name = #{prod_name}, prod_content = #{prod_content}, prod_price = #{prod_price},
+		prod_image = #{prod_image}, prod_yn = #{prod_yn}, prod_sale = #{prod_sale},
+		dcate_id = (select dcate_id from detail_category where dcate_id = #{dcate_id})
+		where prod_id = #{prod_id}
+	</update>
+	
+	<select id="getAllProd" resultType="prodVo">
+		select * from prod order by prod_id desc
+	</select>
+	
+	<select id="getOneProd" parameterType="String" resultType="prodVo">
+		select * from prod where prod_id = #{prod_id}
+	</select>
+		
+	<select id="getWishListByMemberId" parameterType="string" resultType="prodVo">
+		SELECT *
+		FROM WISHLIST w
+				 JOIN PROD p ON w.PROD_ID = p.PROD_ID
+		WHERE w.MEM_ID = #{mem_id}
+	</select>
+
+
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+

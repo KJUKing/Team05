@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="notice">
+
+    <resultMap id="noticeResultMap" type="noticeVo">
+        <result property="notiNo" column="NOTI_NO"/>
+        <result property="notiTitle" column="NOTI_TITLE"/>
+        <result property="notiContent" column="NOTI_CONTENT"/>
+        <result property="notiDate" column="NOTI_DATE"/>
+        <result property="adminId" column="ADMIN_ID"/>
+    </resultMap>
+
+    <!-- 공지사항 전체 글 수 가져오기 -->
+    <select id="getTotalCount" parameterType="map" resultType="int">
+        SELECT COUNT(*)
+        FROM notice
+        <where>
+            <if test="stype != null and sword != null">
+                <choose>
+                    <!-- stype 값이 'title'이면 NOTI_TITLE에서 검색 -->
+                    <when test="stype == 'title'">
+                        NOTI_TITLE LIKE '%' || #{sword} || '%'
+                    </when>
+
+                    <!-- stype 값이 'content'이면 NOTI_CONTENT에서 검색 -->
+                    <when test="stype == 'content'">
+                        NOTI_CONTENT LIKE '%' || #{sword} || '%'
+                    </when>
+
+                    <!-- stype 값이 'title_content'이면 제목과 내용에서 모두 검색 -->
+                    <when test="stype == 'title_content'">
+                        (NOTI_TITLE LIKE '%' || #{sword} || '%' OR NOTI_CONTENT LIKE '%' || #{sword} || '%')
+                    </when>
+
+                    <!-- stype 값이 'writer'이면 ADMIN_ID에서 검색 -->
+                    <when test="stype == 'writer'">
+                        ADMIN_ID LIKE '%' || #{sword} || '%'
+                    </when>
+                </choose>
+            </if>
+        </where>
+    </select>
+
+    <!--	페이지네이션 적용된 조회 쿼리 -->
+    <select id="getPaginatedNoticeList" parameterType="map" resultMap="noticeResultMap">
+        SELECT * FROM (
+        SELECT ROWNUM AS rnum, A.*
+        FROM (
+        SELECT *
+        FROM notice
+        <where>
+            <if test="stype != null and sword != null">
+                <choose>
+                    <!-- stype 값이 'title'이면 NOTI_TITLE에서 검색 -->
+                    <when test="stype == 'title'">
+                        NOTI_TITLE LIKE '%' || #{sword} || '%'
+                    </when>
+
+                    <!-- stype 값이 'content'이면 NOTI_CONTENT에서 검색 -->
+                    <when test="stype == 'content'">
+                        NOTI_CONTENT LIKE '%' || #{sword} || '%'
+                    </when>
+
+                    <!-- stype 값이 'title_content'이면 제목과 내용에서 모두 검색 -->
+                    <when test="stype == 'title_content'">
+                        (NOTI_TITLE LIKE '%' || #{sword} || '%' OR NOTI_CONTENT LIKE '%' || #{sword} || '%')
+                    </when>
+
+                    <!-- stype 값이 'writer'이면 ADMIN_ID에서 검색 -->
+                    <when test="stype == 'writer'">
+                        ADMIN_ID LIKE '%' || #{sword} || '%'
+                    </when>
+                </choose>
+            </if>
+        </where>
+        ORDER BY NOTI_NO DESC
+        ) A
+        WHERE ROWNUM &lt;= #{end}
+        )
+        WHERE rnum &gt;= #{start}
+    </select>
+
+
+    <select id="getNoticeOne" parameterType="int" resultMap="noticeResultMap">
+        SELECT *
+        FROM notice
+        WHERE NOTI_NO = #{notiNo}
+    </select>
+
+    <select id="getNextNoticeId" resultType="int">
+        SELECT notice_seq.NEXTVAL
+        FROM dual
+    </select>
+
+    <insert id="insertNotice" parameterType="noticeVo">
+        INSERT INTO notice (noti_no, noti_title, noti_content, noti_date, admin_id)
+        VALUES (#{notiNo}, #{notiTitle}, #{notiContent}, SYSDATE, #{adminId})
+    </insert>
+
+    <update id="updateNotice" parameterType="kr.or.ddit.notice.vo.NoticeVO">
+        UPDATE notice
+        SET noti_title = #{notiTitle},
+        noti_content = #{notiContent},
+        noti_date = SYSDATE  <!-- 수정 시점에 수정일을 업데이트 -->
+        WHERE noti_no = #{notiNo}
+    </update>
+
+    <!-- 공지사항 삭제 -->
+    <delete id="deleteNotice" parameterType="int">
+        DELETE
+        FROM notice
+        WHERE noti_no = #{notiNo}
+    </delete>
+
+
+</mapper>

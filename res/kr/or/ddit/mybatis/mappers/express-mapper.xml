@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="express">
+	
+	<select id="getAllExpress" resultType="exVo">
+		select * from express
+	</select>
+	
+	<select id="detailExpress" resultType="exVo" parameterType="string">
+		select * from express where ex_id = #{ex_id}
+	</select>
+	
+	<insert id="insertExpress" parameterType="exVo">
+		insert into express(ex_name,ex_phone)
+		values(#{ex_name},#{ex_phone})
+	</insert>
+	
+	<update id="updateExpress" parameterType="exVo">
+		update express set
+		ex_name = #{ex_name}, ex_phone = #{ex_phone}
+		where ex_id = #{ex_id}
+	</update>
+    
+    <delete id="deleteExpress" parameterType="string">
+    	delete from express where ex_id = #{ex_id}
+    </delete>
+    
+    <select id="trackDelivery" parameterType="String" resultType="exVo">
+    	 select *
+		 from payment A, express B, member C, prod D, cart E, detail_cart F, delivery G
+		 where b.ex_id = g.ex_id
+		   and g.del_id = a.del_id
+		   and a.cart_id = e.cart_id
+		   and c.mem_id = e.mem_id
+		   and e.cart_id = f.cart_id
+		   and d.prod_id = f.prod_id
+		   and e.cart_id = #{mem_id}
+		   and a.pay_status = 1
+    </select>
+
+</mapper>

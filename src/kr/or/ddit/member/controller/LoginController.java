@@ -1,0 +1,93 @@
+package kr.or.ddit.member.controller;
+
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import kr.or.ddit.member.service.MemberService;
+import kr.or.ddit.member.vo.MemberVO;
+
+@WebServlet("/member/login.do")
+public class LoginController extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private MemberService memberService;
+
+    public void init() {
+        String baseURL = getServletContext().getInitParameter("baseURL");
+        memberService = MemberService.getInstance(baseURL);
+    }
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("savedId".equals(cookie.getName())) {
+                    request.setAttribute("savedId", cookie.getValue());
+                    break;
+                }
+            }
+        }
+        request.getRequestDispatcher("/WEB-INF/views/member/Login.jsp").forward(request, response);
+    }
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String memId = request.getParameter("memId");
+        String memPass = request.getParameter("memPass");
+        String saveId = request.getParameter("saveId");
+        String userType = request.getParameter("userType");
+
+
+        try {
+            MemberVO member = memberService.getMemberById(memId);
+            if (member != null && memberService.login(memId, memPass)) {
+            	// 관리자 로그인 체크
+                if ("admin".equals(userType) && !"admin".equals(memId)) {
+                    request.setAttribute("error", "관리자 로그인은 admin 계정만 가능합니다.");
+                    request.getRequestDispatcher("/WEB-INF/views/member/Login.jsp").forward(request, response);
+                    return;
+                }
+
+                // 일반 회원 로그인 체크
+                if ("normal".equals(userType) && "admin".equals(memId)) {
+                    request.setAttribute("error", "admin 계정은 관리자 로그인으로만 접근 가능합니다.");
+                    request.getRequestDispatcher("/WEB-INF/views/member/Login.jsp").forward(request, response);
+                    return;
+                }
+                
+                // 로그인 성공 시 세션 생성 및 사용자 정보 저장
+                HttpSession session = request.getSession();
+                session.setAttribute("loggedInMember", member);
+                session.setAttribute("userType", userType);
+                
+                // 아이디 저장 처리
+                if ("on".equals(saveId)) {
+                    Cookie cookie = new Cookie("savedId", memId);
+                    cookie.setMaxAge(7 * 24 * 60 * 60); // 7일 동안 유효
+                    response.addCookie(cookie);
+                } else {
+                    Cookie cookie = new Cookie("savedId", "");
+                    cookie.setMaxAge(0); // 쿠키 삭제
+                    response.addCookie(cookie);
+                }
+                
+
+                // 민경주 240910 수정 - index페이지로 리다이렉트
+                response.sendRedirect(request.getContextPath() + "/index.jsp");
+            } else {
+                // 로그인 실패 시 에러 메시지와 함께 로그인 페이지로 돌아감
+                request.setAttribute("error", "아이디 또는 비밀번호가 올바르지 않습니다.");
+                request.getRequestDispatcher("/WEB-INF/views/member/Login.jsp").forward(request, response);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "로그인 중 오류가 발생했습니다.");
+            request.getRequestDispatcher("/WEB-INF/views/member/Login.jsp").forward(request, response);
+        }
+    }
+}

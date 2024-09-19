@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="dacate">
+	
+	<insert id="insertDeCate" parameterType="String">
+		insert into detail_category (dcate_id, dcate_name, cate_id)
+		values ('D' || to_char(detail_category_seq.nextval, 'FM000000'), #{dcate_name}, #{cate_id})
+	</insert>
+	
+	<delete id="deleteDeCate" parameterType="String">
+		delete from detail_category where dcate_id = #{dcate_id}
+	</delete>
+	
+	<update id="updateDeCate" parameterType="decateVo">
+		update detail_category set dcate_name = #{dcate_name}
+		where dcate_id = #{dcate_id}
+	</update>
+	
+	<select id="getAllDeCate" resultType="decateVo">
+		select * from detail_category order by dcate_id desc
+	</select>
+	
+	<select id="getIdDeCate" parameterType="String" resultType="decateVO">
+	select * from detail_category where cate_id=#{cate_id}
+	</select>
+	
+</mapper>
+

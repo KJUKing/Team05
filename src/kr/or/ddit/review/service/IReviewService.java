@@ -1,0 +1,79 @@
+package kr.or.ddit.review.service;
+
+import java.util.List;
+
+import kr.or.ddit.review.vo.ReviewVO;
+
+public interface IReviewService {
+    
+    /**
+     *  DB의 전체 리뷰를 가져와서 List에 담아서 반환하는 메서드
+     *  
+     * @return ReviewVo 객체가 저장된 List 객체
+     */
+    public List<ReviewVO> getAllReview();
+    
+    /**
+     * 로그인된 회원의 리뷰 조회
+     * @param memId
+     * @return List<ReviewVO>
+     */
+    public List<ReviewVO> getMyReview(String memId);
+    
+    /**
+     * 리뷰 insert
+     * @param reviewVo
+     * @return int
+     */
+    public int insertReview(ReviewVO reviewVo);
+    
+    /**
+     * 결제완료인 얘들의 cartId가져오기
+     * @param memId
+     * @return
+     */
+    public List<String> getPaidCartIdsForMember(String memId);
+    
+    /**
+     * 선택된 장바구니(cart_id)와 관련된 상품 ID 조회
+     * @param cartId
+     * @return Integer
+     */
+    public String getProdId(String cartId);
+    
+    /**
+     * 리뷰 상세보기
+     * @param reviewId
+     * @return ReviewVO
+     */
+    public ReviewVO reviewDetail(String reviewId);
+    
+    /**
+     * 리뷰 수정
+     * @param reviewVo
+     * @return int
+     */
+    public int updateReview(ReviewVO reviewVo);
+    
+    /**
+     * 리뷰 삭제
+     * @param reviewId
+     * @return int
+     */
+    public int deleteReview(String reviewId);
+    
+    /**
+     * 신고 횟수 업데이트
+     * @param reviewId
+     * @return int
+     */
+    public int updateReport(String reviewId);
+    
+    /**
+     * 리뷰 중복 확인 메서드
+     * @param cartId
+     * @param memId
+     * @return boolean
+     */
+    public boolean isReviewExistForCart(String cartId, String memId);
+}

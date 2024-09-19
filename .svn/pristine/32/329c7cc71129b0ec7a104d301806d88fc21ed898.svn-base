@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="riturn">
+	
+	<select id="myBuyList" resultType="riturnVo">
+		select *
+		from prod A, detail_cart B, payment C, member D, cart E, option_table F
+		where a.prod_id = b.prod_id
+		  and b.cart_id = c.cart_id
+		  and c.cart_id = e.cart_id
+		  and d.mem_id = e.mem_id
+		  and b.option_id = f.option_id
+		  and d.mem_id = 'o001'
+		  and c.pay_status = '1'
+	</select>
+	
+	<insert id="riturnP           rod" parameterType="riturnVo">
+		insert into return(re_id,re_qty,re_date,re_reason,pay_id)
+		values(#{re_id},#{re_qty},sysdate,#{re_reason},#{pay_id })
+	</insert>
+	
+	<update id="paymentUpdate" parameterType="String">
+		update payment set
+		pay_status = '2'
+		where pay_id = #{pay_id}
+	</update>
+	
+</mapper>

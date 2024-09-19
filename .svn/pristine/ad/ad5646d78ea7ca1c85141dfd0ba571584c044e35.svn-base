@@ -1,0 +1,35 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+
+<!--상품
+	상품 ID (자동)
+	상품입고날짜 (자동)
+	상품이름
+	상품설명
+	상품가격 (int)
+	상품이미지 (part)
+	상품상태
+	상품할인률 (null == 기본값 100)
+	세부카테고리ID (외부키)
+	
+	--세부카테고리
+	세부카테고리 ID (자동)
+	세부카테고리이름 (티셔츠 자켓)
+	
+	--카테고리
+	카테고리 ID (자동)
+	카테고리이름 (상의 하의)
+ -->
+
+</head>
+<h2>상품 정보 입력 폼</h2>
+<a href="<%=request.getContextPath() %>/prodList.do">상품</a>
+<body>
+
+</body>
+</html>

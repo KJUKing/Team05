@@ -1,0 +1,210 @@
+<%@page import="kr.or.ddit.prod.vo.OptionVO"%>
+<%@page import="kr.or.ddit.prod.vo.DeCateVO"%>
+<%@page import="kr.or.ddit.prod.vo.ProdVO"%>
+<%@page import="kr.or.ddit.prod.vo.MainCateVO"%>
+<%@page import="java.util.List"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<style type="text/css">
+    table, tr, td { border:1px solid blue; border-collapse: collapse; }
+    td { padding:5px;}
+    .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgb(0,0,0); background-color: rgba(0,0,0,0.4); }
+    .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; }
+</style>
+
+<script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery-3.7.1.js"></script>
+
+<script type="text/javascript">
+
+$(function(){
+    $("#btnList").on("click", function(){
+        location.href="<%=request.getContextPath()%>/prod/prodList.do";
+    });
+
+    $("#maincate").on("change", function() {
+        var mainId = $(this).val(); 
+        $.ajax({
+            url: '<%=request.getContextPath()%>/prod/deCate.do',
+            type: 'POST',
+            data: { mainId: mainId },
+            dataType: 'json',
+            success: function(response) {
+                var $decateDropdown = $("#decate");
+                $decateDropdown.empty(); 
+                if (Array.isArray(response)) {
+                    response.forEach(function(item) {
+                        if (item.dcate_id && item.dcate_name) {
+                            var $option = $('<option></option>')
+                                .text(item.dcate_name)
+                                .val(item.dcate_id);
+                            $decateDropdown.append($option);
+                        }
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('오류 발생:', status, error);
+            }
+        });
+    });
+
+    // Open modal for main category
+    $("#addMainCate").on("click", function() {
+        $("#mainCateModal").show();
+    });
+
+    // Open modal for detailed category
+    $("#addDeCate").on("click", function() {
+        $("#deCateModal").show();
+    });
+
+    // Close modal
+    $(".close").on("click", function() {
+        $(this).closest(".modal").hide();
+    });
+});
+
+function addMainCategory() {
+    var mainCateName = $("#mainCateName").val();
+
+    $.ajax({
+        url: '<%=request.getContextPath()%>/prod/mainCateInsert.do',
+        type: 'POST',
+        data: { mainCateName: mainCateName },
+        success: function(response) {
+            // 성공 시 처리 (예: 새 카테고리를 드롭다운에 추가)
+            $("#mainCateModal").hide();
+            alert("메인 카테고리가 추가되었습니다!");
+            location.reload();
+        },
+        error: function(xhr, status, error) {
+            console.error('오류 발생:', status, error);
+        }
+    });
+}
+
+
+function addDeCategory() {
+    var deCateName = $("#deCateName").val();
+    var mainCateId = $("#maincate").val(); // 현재 선택된 메인 카테고리 ID 가져오기
+
+    // AJAX 호출로 서블릿에 데이터 전송
+    $.ajax({
+        url: '<%=request.getContextPath()%>/prod/deCateInsert.do',
+        type: 'POST',
+        data: { deCateName: deCateName, mainCateId: mainCateId }, // 메인 카테고리 ID 추가
+        success: function(response) {
+            $("#deCateModal").hide();
+            alert("세부 카테고리가 추가되었습니다!");
+            location.reload(); // 페이지 새로 고침
+        },
+        error: function(xhr, status, error) {
+            console.error('오류 발생:', status, error);
+        }
+    });
+}
+
+
+
+
+</script>
+</head>
+<body>
+<%
+    List<MainCateVO> mcList = (List<MainCateVO>)request.getAttribute("mcList");
+    List<OptionVO> OptionList = (List<OptionVO>)request.getAttribute("OptionList");
+%>
+
+<h2>상품 정보 입력 폼</h2>
+
+<form id="prodForm" method="post" enctype="multipart/form-data"
+    action="<%=request.getContextPath()%>/prod/prodInsert.do">
+<table border="1">
+<tbody>
+    <tr>
+        <td>제품명</td>
+        <td><input type="text" name="prod_name" id="prod_name"></td>
+    </tr>
+    <tr>
+        <td>제품내용</td>
+        <td><input type="text" name="prod_content" id="prod_content"></td>
+    </tr>
+    <tr>
+        <td>가격</td>
+        <td><input type="text" name="prod_price" id="prod_price"></td>
+    </tr>    
+    <tr>
+        <td>제품이미지</td>
+        <td><input type="file" name="prod_image"></td>
+    </tr>
+    <tr>
+        <td>제품상태</td>
+        <td><input type="text" name="prod_yn"></td>
+    </tr>
+    <tr>
+        <td>할인률</td>
+        <td><input type="text" name="prod_sale"></td>
+    </tr>
+    <tr>
+        <td>카테고리 선택</td>
+        <td>
+        <h3>카테고리 추가하기</h3>
+            <select id="maincate">
+                <option value="" selected>**카테고리 선택**</option>
+                <%for(MainCateVO mcvo : mcList){%>
+                    <option value="<%=mcvo.getCate_id()%>"><%=mcvo.getCate_name()%></option>
+                <% } %>
+            </select>
+            <button type="button" id="addMainCate">추가</button>
+            <br><br>
+            
+            <select id="decate" name="mainId">
+                <option value="" selected>**세부카테고리 선택**</option>
+            </select>
+            <button type="button" id="addDeCate">추가</button>
+            <br>
+            
+            <h3>옵션 추가하기</h3>
+            <br>옵션 컬러 입력<br><input type="text" name="optionName" placeholder="베이직">
+            <br>옵션 사이즈 입력<br><input type="text" name="optionValue" placeholder="90(cm) or 265(mm)">
+            <br>옵션 재고량<br><input type="text" name="oprodQty" placeholder="100(개)">
+        </td>
+    </tr>
+    <tr>	
+        <td colspan="2" style="text-align:center;">
+            <input type="submit" value="저장"> 
+            <input type="reset" value="취소">
+            <input type="button" id="btnList" value="제품목록">
+        </td>
+    </tr>
+</tbody>
+</table>
+</form>
+
+<!-- Main Category Modal -->
+<div id="mainCateModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>메인 카테고리 추가</h2>
+        <input type="text" id="mainCateName" name="mainCateName" placeholder="카테고리 이름">
+        <button onclick="addMainCategory()">추가</button>
+    </div>
+</div>
+
+<!-- Detailed Category Modal -->
+<div id="deCateModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>세부 카테고리 추가</h2>
+        <input type="text" id="deCateName" name="deCateName" placeholder="세부 카테고리 이름">
+        <button onclick="addDeCategory()">추가</button>
+    </div>
+</div>
+
+</body>
+</html>
