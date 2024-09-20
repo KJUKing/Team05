@@ -403,11 +403,17 @@
             quantity = 1;
         }
         var totalPrice = basePrice * quantity;
+
+        // 수량을 서버로 전송할 숨겨진 필드의 값을 업데이트
+        document.getElementById("modal-quantity").value = quantity; // 이 부분이 추가되어야 합니다.
+
+        // 화면에 수량과 가격을 업데이트
         modalPriceSpan.innerText = '₩' + totalPrice.toLocaleString();
         currentQuantitySpan.innerText = quantity;
     }
-    
- 	// 수정 버튼 클릭 시 호출되는 함수
+
+
+    // 수정 버튼 클릭 시 호출되는 함수
     function editProduct(prodId) {
         // 수정 페이지로 이동 (여기서는 임의의 경로를 설정)
         window.location.href = '<%= request.getContextPath() %>/prod/prodUpdate.do?prod_id=' + prodId;

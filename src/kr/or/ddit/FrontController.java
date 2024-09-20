@@ -8,10 +8,26 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+
 @WebServlet("/main")
 public class FrontController extends HttpServlet {
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        // GET이 아닌 POST로 처리하도록 수정
+        processRequest(request, response);
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        processRequest(request, response);
+    }
+
+    private void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         String viewName = request.getParameter("view");
@@ -58,8 +74,9 @@ public class FrontController extends HttpServlet {
                 case "prodListView":
                     page = "/WEB-INF/views/prod/prodListView.jsp";
                     break;
-
-
+                case "paymentList":
+                    page = "/WEB-INF/views/payment/paymentList.jsp";
+                    break;
                 // 필요한 페이지를 더 추가하면 됩니다.
             }
         }
@@ -70,3 +87,4 @@ public class FrontController extends HttpServlet {
         dispatcher.forward(request, response);
     }
 }
+

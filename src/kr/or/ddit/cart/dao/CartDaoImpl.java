@@ -44,7 +44,7 @@ public class CartDaoImpl implements ICartDao {
     }
 
     @Override
-    public int insertDetailCart(java.lang.String cartId, java.lang.String optionId, java.lang.String prodId, int quantity) {
+    public void insertDetailCart(java.lang.String cartId, java.lang.String optionId, java.lang.String prodId, int quantity) {
         SqlSession session = MybatisUtil.getSqlSession();
         int result =0;
         try {
@@ -61,7 +61,6 @@ public class CartDaoImpl implements ICartDao {
             session.commit();
             session.close();
         }
-        return result;
     }
 
     @Override

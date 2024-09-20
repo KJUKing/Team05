@@ -29,15 +29,21 @@ public class InsertCartController extends HttpServlet {
 
         // 값 추출
         String cartId = service.insertCart(memId);
-        System.out.println("cartId = " + cartId);
-
-        int result = service.insertDetailCart(cartId, optionId, prodId, quantity);
+        // 상세 카트 입력
+        service.insertDetailCart(cartId, optionId, prodId, quantity);
+        //총합값
+        double totalPrice = service.calculateTotalPrice(cartId);
+        //결과값
+        int result = service.updateCartTotalPrice(cartId, totalPrice);
 
         if (result == 1) {
             if ("buyNow".equals(action)) {
-                // 바로 구매하기 -> 결제 상세 페이지로 리다이렉트
-//                response.sendRedirect(request.getContextPath() + "/payment/paymentInsert.do?cartId=" + cartId + "&memId=" + memId);
-                response.sendRedirect(request.getContextPath() + "/WEB-INF/views/payment/paymentList.jsp");
+                // 바로 구매하기 -> Forward 방식으로 넘기기
+                request.setAttribute("cartId", cartId);
+                request.setAttribute("totalPrice", totalPrice);
+                // Forward로 데이터를 POST 방식으로 넘기기
+//                request.getRequestDispatcher("/payment/paymentInsert.do").forward(request, response);
+                request.getRequestDispatcher("/main?view=paymentList").forward(request, response);
             } else if ("addToCart".equals(action)) {
                 // 장바구니에 담기 -> 장바구니 목록 페이지로 리다이렉트
                 response.sendRedirect(request.getContextPath() + "/cartList.do");

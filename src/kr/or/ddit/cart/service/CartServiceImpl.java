@@ -26,14 +26,18 @@ public class CartServiceImpl implements ICartService {
     }
 
     @Override
-    public int insertDetailCart(String cartId, String optionId, String prodId, int quantity) {
-
+    public void insertDetailCart(String cartId, String optionId, String prodId, int quantity) {
         dao.insertDetailCart(cartId, optionId, prodId, quantity);
+    }
 
+    public double calculateTotalPrice(String cartId){
         //바로 가격총합구해야함
-        double totalPrice = dao.calculateTotalPrice(cartId);
+        return dao.calculateTotalPrice(cartId);
+    }
 
+    public int updateCartTotalPrice(String cartId, double totalPrice){
         //총합 구한걸 업데이트하고 성공 실패여부 int값 반환
         return dao.updateCartTotalPrice(cartId, totalPrice);
     }
+
 }

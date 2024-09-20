@@ -16,29 +16,19 @@ import kr.or.ddit.payment.vo.PaymentVO;
 public class PaymentInsert extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String cartId = request.getParameter("cartId");
-		String memId = request.getParameter("memId");
-
-		// doPost로 파라미터 넘기기
-		request.setAttribute("cartId", cartId);
-		request.setAttribute("memId", memId);
-
-		// doPost 호출
-		doPost(request, response);
-	}
-
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
+
 		String cartId = (String) request.getAttribute("cartId");
 		String memId = (String) request.getAttribute("memId");
+		double totalPrice = (double) request.getAttribute("totalPrice");  // totalPrice를 받아서 처리
+
 		request.setCharacterEncoding("utf-8");
 		response.setCharacterEncoding("utf-8");
 
 		// 파라미터 받기
-		int payPrice = Integer.valueOf(request.getParameter("totalprice"));
+		int payPrice = (int) totalPrice;
 		String mileageUsedStr = request.getParameter("mile_used");
 		int mileUsed = (mileageUsedStr != null && !mileageUsedStr.isEmpty()) ? Integer.valueOf(mileageUsedStr) : 0;
 		String coupId = request.getParameter("coup_id");
