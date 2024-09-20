@@ -11,7 +11,7 @@
 		  and c.cart_id = e.cart_id
 		  and d.mem_id = e.mem_id
 		  and b.option_id = f.option_id
-		  and d.mem_id = 'o001'
+		  and d.mem_id = 'p002'
 		  and c.pay_status = '1'
 	</select>
 	
@@ -43,5 +43,21 @@
 		where mem_id = #{mem_id}
 	</update>
 	
+	<update id="returnMileage" parameterType="map">
+	    UPDATE member
+	    SET mem_mileage = mem_mileage - #{mileageBonus}
+	    WHERE mem_id = #{memId}
+	</update>
+	
+	<select id="riturnView" resultType="riturnVo">
+		select *
+		from prod A, detail_cart B, payment C, return D, cart E, option_table F
+		where a.prod_id = b.prod_id
+		  and b.cart_id = c.cart_id
+		  and c.cart_id = e.cart_id
+		  and d.pay_id = c.pay_id
+		  and b.option_id = f.option_id
+		  and c.pay_status = '2'
+	</select>
 	
 </mapper>

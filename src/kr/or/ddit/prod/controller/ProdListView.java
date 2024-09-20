@@ -34,7 +34,7 @@ public class ProdListView extends HttpServlet {
 		IOptionService opService = OptionServiceImpl.getInstance();
 		IImageService imgService = ImageServiceImpl.getInstance();
 		
-		ProdVO prodVo = (ProdVO) service.getOneProd(prodId);
+		ProdVO prodVo = service.getOneProd(prodId);
 		List<OptionVO> optionList = opService.getOneOption(prodId);
 		prodVo.setOptionList(optionList);
 		

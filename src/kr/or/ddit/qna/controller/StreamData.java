@@ -19,7 +19,7 @@ public class StreamData {
 		} catch(Exception e) {
 			System.out.println("Error reading JSON string: " + e.toString());
 			}
-		// String reqdata = strbuf.toString();
+		// CartVO reqdata = strbuf.toString();
 		String reqdata =  String.valueOf(strbuf);
 		
 		System.out.println("reqdata : " + reqdata);

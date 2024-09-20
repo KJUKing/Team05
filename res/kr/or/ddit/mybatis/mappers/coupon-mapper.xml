@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="coupon">
+	
+	<insert id="couponInsert">
+		insert into detail_coupon(coup_cdate,coup_edate,coup_amount,coup_status,coup_name)
+		values(sysdate,#{coup_edate},#{coup_amount},'1',#{coup_name})
+	</insert>
+	
+	<select id="couponList" resultType="coupVo">
+		select * from detail_coupon
+	</select>
+	
+</mapper>

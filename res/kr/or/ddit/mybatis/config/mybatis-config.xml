@@ -44,6 +44,8 @@
 		<typeAlias type="kr.or.ddit.image.vo.ImageVO" alias="imageVo"/>
 		<typeAlias type="kr.or.ddit.riturn.vo.RiturnVO" alias="riturnVo"/>
 		<typeAlias type="kr.or.ddit.likes.vo.LikesVO" alias="likesVo"/>
+		<typeAlias type="kr.or.ddit.cart.vo.CartVO" alias="cartVo"/>
+		<typeAlias type="kr.or.ddit.coupon.vo.CouponVO" alias="coupVo"/>
 	</typeAliases>
 	
 	 
@@ -87,6 +89,8 @@
 		<mapper resource="kr/or/ddit/mybatis/mappers/image_mapper.xml"/>
 		<mapper resource="kr/or/ddit/mybatis/mappers/riturn-mapper.xml"/>
 		<mapper resource="kr/or/ddit/mybatis/mappers/likes-mapper.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/cart-mapper.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/coupon-mapper.xml"/>
 		<!-- 여기에  매퍼파일 채워넣기 -->
 	</mappers>
 	

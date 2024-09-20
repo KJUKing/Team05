@@ -23,9 +23,7 @@
  -->
 	<insert id="insertOprod" parameterType="oprodVo">
     	INSERT INTO oprod (option_id, prod_id, oprod_qty)
-    	VALUES ('O' || TO_CHAR( #{option_id}, 'FM000000'), 
-    			'P' || TO_CHAR( #{prod_id}, 'FM000000'), 
-    			#{oprod_qty})
+    	VALUES (#{option_id}, #{prod_id}, #{oprod_qty})
 	</insert>
 	 
 	 

@@ -1,0 +1,74 @@
+package kr.or.ddit.prod.controller;
+
+import java.io.IOException;
+import java.util.List;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import kr.or.ddit.image.service.IImageService;
+import kr.or.ddit.image.service.ImageServiceImpl;
+import kr.or.ddit.image.vo.ImageVO;
+import kr.or.ddit.prod.service.DeCateServiceImpl;
+import kr.or.ddit.prod.service.IDeCateService;
+import kr.or.ddit.prod.service.IMainCateService;
+import kr.or.ddit.prod.service.IProdService;
+import kr.or.ddit.prod.service.MainCateServiceImpl;
+import kr.or.ddit.prod.service.ProdServiceImpl;
+import kr.or.ddit.prod.vo.DeCateVO;
+import kr.or.ddit.prod.vo.MainCateVO;
+import kr.or.ddit.prod.vo.ProdVO;
+
+@WebServlet("/prod/prodList.do")
+public class ProdList extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+//		request.geta
+		
+		IProdService prodService = ProdServiceImpl.getInstance();
+		IMainCateService mcService = MainCateServiceImpl.getInstance();
+		IDeCateService dcService = DeCateServiceImpl.getInstance();
+		IImageService imgService = ImageServiceImpl.getInstance();
+		
+		//HttpSession session = request.getSession();
+		
+		List<ProdVO> prodList = prodService.getAllProd();
+		
+		for(ProdVO pvo : prodList) {
+			List<ImageVO> imgList = imgService.getImagesByTargetId(pvo.getProd_id(), "PROD");
+			pvo.setImageList(imgList);
+		}
+		
+		List<MainCateVO> mcList = mcService.getAllMainCate();
+		List<DeCateVO> dcList = dcService.getAllDeCate();
+		System.out.println("dc===" + dcList);
+		
+		//세션처리해서 여러번 쓰게 해야함
+		//dclist는 여기서 for문 돌려서 
+		//if(mcList == val)(prodForm에서 가져온 change.value)
+		//list에 저장해서 넣어줘야함
+		//그리고 session에서 추가해서 보내야함
+		
+		/*
+		 * session.setAttribute("prodList", prodList); session.setAttribute("mcList",
+		 * mcList); session.setAttribute("dcList", dcList);
+		 */
+		
+		request.setAttribute("prodList", prodList);
+		request.setAttribute("mcList", mcList);
+		request.setAttribute("dcList", dcList);
+		
+		request.getRequestDispatcher("/main?view=prodList").forward(request, response);
+	}
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		doGet(request, response);
+	}
+
+}

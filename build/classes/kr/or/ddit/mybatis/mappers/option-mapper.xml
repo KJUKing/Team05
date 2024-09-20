@@ -15,11 +15,11 @@
 	<insert id="insertOption" parameterType="optionVo">
 	
 	<selectKey keyProperty="option_id"  order="BEFORE" resultType="string">
-	      select option_seq.NEXTVAL from dual
+	      select 'O' || TO_CHAR(option_seq.NEXTVAL, 'FM000000') from dual
 	   </selectKey>
 	
 		insert into option_table (option_id, option_name, option_value)
-		values('O' || TO_CHAR(#{option_id}, 'FM000000'), #{option_name}, #{option_value})
+		values(#{option_id}, #{option_name}, #{option_value})
 	</insert>
 	
 

@@ -65,6 +65,7 @@ public class ImageDaoImpl implements IImageDao {
         SqlSession session = MybatisUtil.getSqlSession();
         try {
             session.delete("image.deleteImage", imageId);
+
         } catch (Exception e) {
             e.printStackTrace();
         }finally {
@@ -85,6 +86,19 @@ public class ImageDaoImpl implements IImageDao {
             session.close();
         }
         return imageVo;
+	}
+
+	@Override
+	public void deleteImageForTargetId(String targetId) {
+		SqlSession session = MybatisUtil.getSqlSession();
+        try {
+            session.delete("image.deleteImageForTargetId", targetId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            session.commit();
+            session.close();
+        }
 	}
 
 }

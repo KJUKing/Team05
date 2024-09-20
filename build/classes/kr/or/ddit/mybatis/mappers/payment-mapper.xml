@@ -10,12 +10,14 @@
 		   and b.mem_id = d.mem_id
 		   and b.cart_id = c.cart_id  
 		   and e.option_id = c.option_id
-		   and b.mem_id = 'o001'
-		   and b.cart_id='c001'
+		   and b.mem_id = 'p002'
+		   and b.cart_id='c005'
 	</select>
 
-	<select id="couponList" resultType="payVo">
-		select * from coupon
+	<select id="couponList" resultType="payVo" parameterType="String">
+		select * 
+		from coupon A, detail_coupon B
+		where a.mem_id = #{mem_id}
 	</select>
 
 	<select id="couponDiscount" resultType="payVo">
@@ -32,7 +34,7 @@
 	<insert id="paymentInsert" parameterType="payVo">
 		insert into
 		payment(pay_id,pay_date,pay_price,pay_option,pay_status,mile_used,coup_id,card_id,cart_id,del_id)
-		values(generate_pay_id(),SYSDATE,#{pay_price},'card',1,#{mile_used},#{coup_id},#{card_id},'c001',
+		values(generate_pay_id(),SYSDATE,#{pay_price},'card',1,#{mile_used},#{coup_id},#{card_id},'c005',
 		(SELECT del_id FROM (SELECT del_id FROM delivery ORDER BY
 		DBMS_RANDOM.VALUE) WHERE ROWNUM = 1)
 		)
@@ -41,8 +43,19 @@
 	<update id="mileageUpdate" parameterType="payVo">
 		update member set
 		mem_mileage = #{mem_mileage}
-		where mem_id = 'o001'
+		where mem_id = 'p002'
 	</update>
+	
+	<delete id="removeItem" parameterType="String">
+		delete from detail_cart where prod_id = #{prod_id}
+	</delete>
+	
+	<update id="payMileage" parameterType="map">
+	    UPDATE member
+	    SET mem_mileage = mem_mileage + #{mileageBonus}
+	    WHERE mem_id = #{memId}
+	</update>
+	
  
 
 </mapper>

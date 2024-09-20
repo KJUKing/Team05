@@ -1,0 +1,64 @@
+package kr.or.ddit.review.controller;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet("/PhotoView.do")
+public class PhotoView extends HttpServlet {
+   private static final long serialVersionUID = 1L;
+
+   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+      request.setCharacterEncoding("utf-8");
+      response.setCharacterEncoding("utf-8");
+       
+      // 요청으로부터 이미지 파일 이름을 가져옴
+      String image = request.getParameter("image");
+
+      // 이미지가 저장된 네트워크 경로
+      String uploadPath = "//192.168.146.20/공유폴더/중프자료제출/5연근보유조/reviewimage";
+
+      File file = new File(uploadPath);
+      
+      // 경로가 없으면 생성 (실제 필요 없을 수도 있음)
+      if (!file.exists()) {
+         file.mkdirs();
+      }
+      
+      // 요청된 이미지 파일 객체 생성
+      File imageFile = new File(file, image);
+      
+      // 이미지가 없을 경우 기본 이미지를 설정
+      if (image == null || !imageFile.exists()) {
+         imageFile = new File(getServletContext().getRealPath("/images/noimage.png"));
+      }
+      
+      try (BufferedInputStream bin = new BufferedInputStream(new FileInputStream(imageFile));
+           BufferedOutputStream bout = new BufferedOutputStream(response.getOutputStream())) {
+
+         // 이미지 타입을 설정
+         response.setContentType(getServletContext().getMimeType(imageFile.getName()));
+         
+         byte[] buffer = new byte[1024];
+         int bytesRead;
+         while ((bytesRead = bin.read(buffer)) != -1) {
+            bout.write(buffer, 0, bytesRead);
+         }
+         bout.flush();
+
+      } catch (Exception e) {
+         System.out.println("입출력 오류: " + e.getMessage());
+      }
+   }
+
+   protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+      doGet(request, response);
+   }
+}

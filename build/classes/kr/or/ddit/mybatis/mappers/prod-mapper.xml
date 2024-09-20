@@ -32,14 +32,14 @@
 	
 	
 	 <selectKey keyProperty="prod_id"  order="BEFORE" resultType="string">
-	      select prod_seq.NEXTVAL from dual
+	      select 'P' || TO_CHAR(prod_seq.NEXTVAL, 'FM000000')  from dual
 	   </selectKey>
 	   
 	   
     	insert into prod (prod_id, prod_date, prod_name, prod_content, prod_price,
-                      	  prod_image, prod_yn, prod_sale, dcate_id) 
-    	values('P' || TO_CHAR(#{prod_id}, 'FM000000'), sysdate, #{prod_name}, #{prod_content}, #{prod_price},
-        #{prod_image}, #{prod_yn}, #{prod_sale}, #{dcate_id})
+                      	  prod_yn, prod_sale, dcate_id) 
+    	values(#{prod_id}, sysdate, #{prod_name}, #{prod_content}, #{prod_price},
+        #{prod_yn}, #{prod_sale}, #{dcate_id})
         
         
        
@@ -54,7 +54,7 @@
 	<update id="updateProd" parameterType="prodVo">
 		update prod set 
 		prod_date = sysdate, prod_name = #{prod_name}, prod_content = #{prod_content}, prod_price = #{prod_price},
-		prod_image = #{prod_image}, prod_yn = #{prod_yn}, prod_sale = #{prod_sale},
+		prod_yn = #{prod_yn}, prod_sale = #{prod_sale},
 		dcate_id = (select dcate_id from detail_category where dcate_id = #{dcate_id})
 		where prod_id = #{prod_id}
 	</update>
@@ -66,6 +66,60 @@
 	<select id="getOneProd" parameterType="String" resultType="prodVo">
 		select * from prod where prod_id = #{prod_id}
 	</select>
+	
+	<!-- (이번달 기준) 신상품 조회 -->
+	<select id="selectForNewArr" resultType="prodVo">
+		select * from prod
+		where extract(month from prod_date) = extract(month from sysdate)
+  			  and extract(year from prod_date) = extract(year from sysdate)
+  		order by prod_date desc
+	</select>
+	
+	<!-- (좋아요 기준) 베스트 조회 -->
+	<select id="selectForBest" resultType="prodVo">
+		select p.*, l.like_count from prod p
+		join (select prod_id, count(*) as like_count
+    		  from likes
+    		  group by prod_id) 
+    	l on p.prod_id = l.prod_id
+		order by l.like_count desc
+	</select>
+	
+	<!-- (카테고리 기준) 겉옷 종류 조회-->
+	<select id="selectForOuter" resultType="prodVo">
+		select p.* from prod p
+		join detail_category dc on p.dcate_id = dc.dcate_id
+		where dc.cate_id = 'C000001'
+		order by prod_date desc
+	</select>
+	
+	<!-- (카테고리 기준) 상의 종류 조회 -->
+	<select id="selectForTop" resultType="prodVo">
+		select p.* from prod p
+		join detail_category dc on p.dcate_id = dc.dcate_id
+		where dc.cate_id = 'C000002'
+		order by prod_date desc
+	</select>
+	
+	<!-- (카테고리 기준) 하의 종류 조회 -->
+	<select id="selectForBottom" resultType="prodVo">
+		select p.* from prod p
+		join detail_category dc on p.dcate_id = dc.dcate_id
+		where dc.cate_id = 'C000003'
+		order by prod_date desc
+	</select>
+	
+	<!-- (카테고리 기준) 악세서리 종류 조회 -->
+	<select id="selectForAcc" resultType="prodVo">
+		select p.* from prod p
+		join detail_category dc on p.dcate_id = dc.dcate_id
+		where dc.cate_id = 'C000004'
+		order by prod_date desc
+	</select>
+	
+	
+	
+	
 		
 	<select id="getWishListByMemberId" parameterType="string" resultType="prodVo">
 		SELECT *

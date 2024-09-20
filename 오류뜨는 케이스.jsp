@@ -85,7 +85,7 @@ DB에 데이터는 정상적으로 삽입되었으나, 삽입 후 405 오류가 
    ```java
    @Override
    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-       String viewName = request.getParameter("view");
+       CartVO viewName = request.getParameter("view");
        // POST 요청을 처리하거나 GET 요청으로 리다이렉트할 수 있음
        response.sendRedirect(request.getContextPath() + "/main?view=" + viewName);
    }

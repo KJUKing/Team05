@@ -1,0 +1,132 @@
+package kr.or.ddit.notice.controller;
+
+import kr.or.ddit.image.service.ImageServiceImpl;
+import kr.or.ddit.notice.service.INoticeService;
+import kr.or.ddit.notice.service.NoticeServiceImpl;
+import kr.or.ddit.notice.vo.NoticeVO;
+import kr.or.ddit.image.vo.ImageVO;
+import kr.or.ddit.image.service.IImageService;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024 * 2,  // 2MB
+        maxFileSize = 1024 * 1024 * 10,       // 10MB
+        maxRequestSize = 1024 * 1024 * 50     // 50MB
+)
+@WebServlet("/notice/insertNotice.do")
+public class InsertNoticeController extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    // GET 요청: 글쓰기 폼을 보여주는 기능
+//    @Override
+//    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+//        // 글쓰기 폼을 보여줄 JSP로 포워딩
+//        request.getRequestDispatcher("/main?view=insertNotice").forward(request, response);
+//    }
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+
+        request.getRequestDispatcher("/main?view=insertNotice").forward(request, response);
+    }
+
+    // POST 요청: 글쓰기 폼 제출 시 데이터를 처리하는 기능
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // 폼 데이터 받아오기
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+
+        // 공지사항 제목, 내용 등 폼 파라미터 가져오기
+        String title = request.getParameter("notiTitle");
+        String content = request.getParameter("notiContent");
+        String adminId = "admin";  // 관리자 ID는 세션에서 받아오는 방식으로 변경 가능
+
+        // NoticeVO 객체 생성
+        NoticeVO notice = new NoticeVO();
+        notice.setNotiTitle(title);
+        notice.setNotiContent(content);
+        notice.setAdminId(adminId);
+
+        // 공지사항을 DB에 먼저 저장
+        INoticeService noticeService = NoticeServiceImpl.getInstance();
+        int result = noticeService.insertNotice(notice);
+
+        // 공지사항 저장 후 noti_no 가져오기
+        int noticeId = notice.getNotiNo();  // 이 부분이 성공적으로 noti_no를 가져옴
+        System.out.println("noticeId = " + noticeId);
+
+        // 업로드된 이미지 파일 처리
+        if (result == 1) {
+            // 실제 웹 애플리케이션의 경로를 가져오기 위해 ServletContext를 사용
+//            String uploadPath = "C:/Users/Administrator/eclipe-workspace/Team05/WebContent/images/notice";
+            String uploadPath = getServletContext().getRealPath("/images/notice");
+            // 이건 상대경로가아닌 절대경로이므로 시연하는 로컬경로에 맞게 수정해야함
+            // 실제 프로젝트 경로
+
+            // WebContent/images/notice 경로
+            File uploadDir = new File(uploadPath);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+
+            // 이미지 파일 업로드 처리
+            List<ImageVO> imageList = new ArrayList<>();
+            for (Part part : request.getParts()) {
+                String fileName = extractFileName(part);
+                if (!fileName.isEmpty()) {
+                    // UUID를 이용한 파일명 중복 방지
+                    String saveFileName = UUID.randomUUID().toString() + "_" + fileName;
+
+                    // 파일 저장 경로 로그 출력
+                    System.out.println("파일 저장 경로: " + uploadPath + File.separator + saveFileName);
+
+                    part.write(uploadPath + File.separator + saveFileName);
+
+                    // 이미지 정보 저장을 위한 ImageVO 생성
+                    ImageVO imageVO = new ImageVO();
+                    imageVO.setTargetId(String.valueOf(noticeId));  // int -> String 형변환
+                    imageVO.setTargetType("NOTICE");          // 공지사항 이미지
+                    imageVO.setImagePath("/images/notice/" + saveFileName);  // 웹 경로로 저장
+
+                    imageList.add(imageVO);
+                }
+            }
+
+            // 이미지 정보 DB 저장
+            IImageService imageService = ImageServiceImpl.getInstance();
+            for (ImageVO image : imageList) {
+                imageService.insertImage(image);
+            }
+
+            // 글쓰기 완료 후 공지사항 리스트 서블릿으로 바로 리다이렉트
+            response.sendRedirect(request.getContextPath() + "/notice/noticeList.do");
+        } else {
+            System.out.println("공지사항 저장 실패");
+        }
+    }
+
+    // Part 객체에서 파일 이름 추출하는 메소드
+    private String extractFileName(Part part) {
+        String contentDisposition = part.getHeader("content-disposition");
+        String[] items = contentDisposition.split(";");
+        for (String item : items) {
+            if (item.trim().startsWith("filename")) {
+                return item.substring(item.indexOf('=') + 1).trim().replace("\"", "");
+            }
+        }
+        return "";
+    }
+
+}
+

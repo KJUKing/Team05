@@ -54,7 +54,8 @@ public class ProdInsert extends HttpServlet {
         IImageService imageService = ImageServiceImpl.getInstance();
 
         // 파일 업로드 경로 설정
-        String uploadPath = getServletContext().getRealPath("/images/prod");
+        //String uploadPath = getServletContext().getRealPath("/images/prod");
+        String uploadPath = "d:/d_other/uploadFiles";
         File uploadDir = new File(uploadPath);
         if (!uploadDir.exists()) {
             uploadDir.mkdirs();
@@ -94,7 +95,7 @@ public class ProdInsert extends HttpServlet {
         		imageVo.setTargetId(prodId);
         		imageVo.setTargetType("PROD");
         		
-        		//String saveFileName = UUID.randomUUID().toString() + "_" + originFileName;
+        		//CartVO saveFileName = UUID.randomUUID().toString() + "_" + originFileName;
         		String saveFileName = prodId + "_" + originFileName;
         		imageVo.setImagePath(saveFileName);
         		
@@ -110,7 +111,7 @@ public class ProdInsert extends HttpServlet {
         	
         }
 //        Part part = request.getPart("prod_image");
-//        String fileName = extractFilename(part);
+//        CartVO fileName = extractFilename(part);
 //        if (!"".equals(fileName)) {
 //            try {
 //                part.write(uploadPath + File.separator + fileName);

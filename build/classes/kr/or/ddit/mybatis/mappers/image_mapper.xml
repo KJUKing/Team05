@@ -35,5 +35,10 @@
 		DELETE FROM images
 		WHERE image_id = #{imageId}
 	</delete>
+	
+	<delete id="deleteImageForTargetId" parameterType="String">
+		DELETE FROM images
+		WHERE target_id = #{targetId}
+	</delete>
 
 </mapper>

@@ -24,7 +24,7 @@ public class ReportView extends HttpServlet {
        
  
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-	    //String memId = request.getParameter("mem_id");
+	    //CartVO memId = request.getParameter("mem_id");
 	    
 		HttpSession session = request.getSession();
 		MemberVO loggedInMember = (MemberVO) session.getAttribute("loggedInMember");

@@ -7,11 +7,18 @@
 		select * from qna where qna_status in('N', 'Y')
 	</select>
 	
-		<!-- 동적쿼리  -->
+	<!-- where절 추가하기  -->
+	<sql id="andWhere">
+		<if test="!(stype == '' or sword == '')">
+			and ${stype} like '%'||#{sword}||'%'
+		</if>
+	</sql>
+
+	<!-- 동적쿼리  -->
 	<sql id="dynamicCondition">
 		<where>
 			<if test="!(stype == '' or sword == '')">
-				${stype} like '%'||#{sword}||'%'
+				${stype} like '%'||${sword}||'%'
 			</if>
 		</where>
 	</sql>
@@ -20,7 +27,7 @@
 	<!-- 전체 글 개수 - 조건에 따라 -->
 	<select id="countPost" parameterType="map" resultType="int">
 		select count(*) from qna where qna_status in('N', 'Y')
-		<include refid="dynamicCondition"/>
+		<include refid="andWhere"/>
 	</select>
 
 	
@@ -29,8 +36,8 @@
       select A.* from
         (select rownum as rnum , B.* from
           (select * from qna
-            <include refid="dynamicCondition"/>
               where qna_status in ('N', 'Y')
+            <include refid="andWhere"/>
                 order by qna_no desc ) B
         <![CDATA[
           where rownum <= #{end}) A

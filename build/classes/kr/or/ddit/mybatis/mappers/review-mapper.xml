@@ -65,34 +65,70 @@
 	</select>
 
 <!-- 결제 완료인 애들만 가져오기 -->
-<select id="getPaidCartIdsForMember" parameterType="String" resultType="String">
-   
-    SELECT p.cart_id
-    FROM payment p
-    JOIN cart c ON p.cart_id = c.cart_id
-    WHERE c.mem_id = #{memId}  <!-- 로그인된 사용자 ID로 필터링 -->
-    AND p.pay_status = 1       <!-- 결제 상태가 완료인 경우만 -->
+<!-- 결제 완료된 장바구니 목록을 조회하는 쿼리 -->
+<select id="getPaidCartIdsForMember" parameterType="string" resultType="string">
+    SELECT 
+        p.cart_id
+    FROM 
+        payment p
+        JOIN cart c ON p.cart_id = c.cart_id
+    WHERE 
+        c.mem_id = #{memId}
+        AND p.pay_status = '1'
+</select>
 
-
+<!-- 결제된 장바구니의 상품 정보와 옵션 정보를 조회하는 쿼리 -->
+<select id="getProductInfoForCart" parameterType="string" resultType="reviewVo">
+    SELECT 
+        *
+    FROM 
+        payment p
+        JOIN detail_cart dc ON p.cart_id = dc.cart_id
+        JOIN prod prod ON dc.prod_id = prod.prod_id
+        JOIN option_table o ON dc.option_id = o.option_id
+        JOIN cart c ON p.cart_id = c.cart_id
+    WHERE 
+        c.mem_id = #{memId}
+        AND p.pay_status = '1'
 </select>
 	
 
- <!-- 리뷰 insert -->
-    <insert id="insertReview"  parameterType="reviewVo">
-     
-    INSERT INTO review (review_id, mem_id, review_star, review_content, review_date, review_delyn, cart_id, option_id, prod_id)
+<!-- 리뷰 insert -->
+<insert id="insertReview" parameterType="reviewVo">
+    INSERT INTO review (
+        review_id, 
+        mem_id, 
+        review_star, 
+        review_content, 
+        review_date, 
+        review_delyn, 
+        cart_id, 
+        option_id, 
+        prod_id
+    )
     VALUES (
-        review_seq.nextval,
+        #{review_id},
         #{mem_id},
         #{review_star},
         #{review_content},
         SYSDATE,
         'N',
-        #{cart_id},  <!-- 선택한 cart_id를 전달받음 -->
-        (SELECT dc.option_id FROM detail_cart dc WHERE dc.cart_id = #{cart_id}),  <!-- 선택한 cart_id에 해당하는 옵션 조회 -->
-        (SELECT dc.prod_id FROM detail_cart dc WHERE dc.cart_id = #{cart_id})  <!-- 선택한 cart_id에 해당하는 상품 조회 -->
+        #{cart_id},
+        (SELECT dc.option_id 
+         FROM detail_cart dc 
+         WHERE dc.cart_id = #{cart_id}),
+        (SELECT dc.prod_id 
+         FROM detail_cart dc 
+         WHERE dc.cart_id = #{cart_id})
     )
 </insert>
+
+<!-- 시퀀스 -->
+<select id="getNextReviewId" resultType="String">
+    SELECT TO_CHAR(review_seq.NEXTVAL) FROM DUAL
+</select>
+
+
 
        <!-- prod_id를 조회하는 쿼리 -->
     <select id="getProdId" parameterType="String" resultType="String">
@@ -100,7 +136,7 @@
     SELECT dc.prod_id
     FROM detail_cart dc
     JOIN cart c ON dc.cart_id = c.cart_id
-    WHERE dc.cart_id = #{cartId}
+    WHERE dc.cart_id = #{cart_id}
 
 
     </select>
