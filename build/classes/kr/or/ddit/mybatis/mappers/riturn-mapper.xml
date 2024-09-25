@@ -3,7 +3,7 @@
 
 <mapper namespace="riturn">
 	
-	<select id="myBuyList" resultType="riturnVo">
+	<select id="myBuyList" resultType="riturnVo" parameterType="String">
 		select *
 		from prod A, detail_cart B, payment C, member D, cart E, option_table F
 		where a.prod_id = b.prod_id
@@ -11,7 +11,7 @@
 		  and c.cart_id = e.cart_id
 		  and d.mem_id = e.mem_id
 		  and b.option_id = f.option_id
-		  and d.mem_id = 'p002'
+		  and d.mem_id = #{mem_id}
 		  and c.pay_status = '1'
 	</select>
 	
@@ -57,6 +57,19 @@
 		  and c.cart_id = e.cart_id
 		  and d.pay_id = c.pay_id
 		  and b.option_id = f.option_id
+		  and c.pay_status = '2'
+	</select>
+	
+	<!-- 관리자 페이지에서 확인하는 반품내역 -->
+	<select id="riturnList2" resultType="riturnVo">
+		select *
+		from prod A, detail_cart B, payment C, return D, cart E, option_table F, member G
+		where a.prod_id = b.prod_id
+		  and b.cart_id = c.cart_id
+		  and c.cart_id = e.cart_id
+		  and d.pay_id = c.pay_id
+		  and b.option_id = f.option_id
+		  and e.mem_id = g.mem_id
 		  and c.pay_status = '2'
 	</select>
 	

@@ -64,7 +64,7 @@
 
 
 	<!-- 게시글 삭제 --> <!-- 아 id를 dao랑 맞춰야한대! -->
-	<update id="qnaDeletePost" parameterType="qnaVo">
+	<update id="deletePost" parameterType="qnaVo">
 		update qna set qna_status = 'D' where qna_no = #{data}
 	</update>
 
@@ -92,16 +92,24 @@
 	<select id="replyList" parameterType="int" resultType="qnaVo">
 		select * from qna where qna_no = #{bonum}
 	</select>
+	
+ 	<!-- 댓글 삭제 -->
+	<update id="deleteReply" parameterType="int">
+		update qna set qna_answer = null, qna_status = 'N' where qna_no = #{data}
+	</update>
 
 
 
 
 
 	<!-- 상품명 전체 가져오기 -->
-	<select id="getAllProdName" resultType="String">
-		select prod_name from prod
+	<select id="getAllProdName" resultType="prodVo">
+		select prod_id, prod_name from prod
 	</select>
 
+<select id="getImageId" parameterType="String" resultType="String">
+	select image_id from images where target_id = #{data}
+</select>
 
 
 

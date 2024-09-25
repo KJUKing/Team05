@@ -1,0 +1,286 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="kr.or.ddit.member.vo.MemberVO" %>
+<%@ page import="java.text.SimpleDateFormat" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>회원 정보 수정</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <style>
+    /* - 정석진 2024-09-23-  */
+        /* 전체 페이지 스타일 */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'%3E%3Cdefs%3E%3Cpattern id='fabric' x='0' y='0' width='80' height='80' patternUnits='userSpaceOnUse'%3E%3Cpath d='M0 0h80v80H0z' fill='%23e6e2d3'/%3E%3Cpath d='M0 0v80h80V0H0zm40 80V0m-20 0v80m60-80v80m-80-40h80' stroke='%23d4cfc0' stroke-width='1'/%3E%3Cpath d='M0 0l80 80M80 0L0 80' stroke='%23d4cfc0' stroke-width='0.5'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23fabric)'/%3E%3Cg opacity='0.7'%3E%3Cpath d='M0 150 Q 400 50, 800 150' fill='none' stroke='%23c9b8a8' stroke-width='100'/%3E%3Cpath d='M0 450 Q 400 350, 800 450' fill='none' stroke='%23b0a090' stroke-width='100'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        /* 컨테이너 스타일 */
+        .container {
+            background-color: rgba(230, 226, 211, 0.8);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 350px;
+            backdrop-filter: blur(5px);
+        }
+
+        /* 제목 스타일 */
+        h2 {
+            text-align: center;
+            color: #4a4a4a;
+            margin-bottom: 1.5rem;
+        }
+
+        /* 폼 그룹 스타일 */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        /* 라벨 스타일 */
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        /* 입력 필드 스타일 */
+        input[type="text"], input[type="email"], input[type="tel"], input[type="password"], input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d4cfc0;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.8);
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]:focus, 
+        input[type="email"]:focus, 
+        input[type="tel"]:focus, 
+        input[type="password"]:focus, 
+        input[type="date"]:focus {
+            border-color: #b0a090;
+            outline: none;
+        }
+
+        /* 우편번호 검색 버튼 스타일 */
+        .postcode-btn {
+            background-color: #7a6f5d;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .postcode-btn:hover {
+            background-color: #5f5648;
+        }
+
+        /* 버튼 컨테이너 스타일 */
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        /* 버튼 스타일 수정 */
+    .btn {
+        padding: 10px 5px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        color: white;
+        width: 22%;
+        text-align: center;
+        text-decoration: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: background-color 0.3s;
+        height: 40px; /* 모든 버튼의 높이를 동일하게 설정 */
+        }
+        
+         /* 수정 버튼 스타일 */
+        .btn-update {
+            background-color: #7a6f5d;
+        }
+        .btn-update:hover {
+            background-color: #5f5648;
+        }
+        
+        /* 삭제 버튼 스타일 */
+        .btn-delete {
+            background-color: #d32f2f;
+        }
+        .btn-delete:hover {
+            background-color: #b71c1c;
+        }
+        
+        /* 뒤로 버튼 스타일 */
+        .btn-back {
+            background-color: #9e9e9e;
+        }
+        .btn-back:hover {
+            background-color: #757575;
+        }
+        
+        /* 로그아웃 버튼 스타일 */
+        .btn-logout {
+            background-color: #607d8b;
+        }
+        .btn-logout:hover {
+            background-color: #455a64;
+        }
+            </style>
+    <script>
+    $(document).ready(function() {
+        // 폼 제출 시 비밀번호 확인
+        $("#editForm").submit(function(event) {
+            var password = $("#memPass").val();
+            var confirmPassword = $("#confirmPass").val();
+            
+            if(password !== confirmPassword) {
+                alert("비밀번호가 일치하지 않습니다.");
+                event.preventDefault(); // 폼 제출 중지
+            }
+        });
+    });
+
+    // 다음 우편번호 검색 API 함수
+    function execDaumPostcode() {
+        new daum.Postcode({
+            oncomplete: function(data) {
+                // 검색 결과에서 우편번호와 주소 정보를 가져와 입력 필드에 삽입
+                document.getElementById('memZipcode').value = data.zonecode;
+                document.getElementById('memAddress').value = data.address;
+                document.getElementById('memDetailAddress').focus();
+            }
+        }).open();
+    }
+
+    // 회원 삭제 함수
+    function deleteMember() {
+    if(confirm('정말로 회원을 삭제하시겠습니까?')) {
+        // 동적으로 폼을 생성하여 POST 요청 전송
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '<%=request.getContextPath()%>/member/deleteMember.do';
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'memId';
+        input.value = document.getElementById('memIdHidden').value; // hidden 필드에서 값을 가져옴
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+    // 로그아웃 함수
+    function logout() {
+        if(confirm('로그아웃 하시겠습니까?')) {
+            location.href = '<%=request.getContextPath()%>/member/logout.do';
+        }
+    }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2>회원 정보 수정</h2>
+        
+        <% 
+            // 서버에서 전달받은 회원 정보를 변수에 저장
+            MemberVO member = (MemberVO) request.getAttribute("member");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String birthDate = (member.getMemBirth() != null) ? sdf.format(member.getMemBirth()) : "";
+        %>
+        
+        <!-- 회원 정보 수정 폼 hidden 필드로 전송 -->
+        <form id="editForm" action="<%=request.getContextPath()%>/member/editMember.do" method="post">
+            <input type="hidden" id="memIdHidden" name="memId" value="<%= member.getMemId() %>">
+
+            <!-- 이름 입력 필드 -->
+            <div class="form-group">
+                <label for="memName">이름:</label>
+                <input type="text" id="memName" name="memName" value="<%= member.getMemName() %>" required>
+            </div>
+            
+            <!-- 새 비밀번호 입력 필드 -->
+            <div class="form-group">
+                <label for="memPass">새 비밀번호:</label>
+                <input type="password" id="memPass" name="memPass" required>
+            </div>
+            
+            <!-- 비밀번호 확인 입력 필드 -->
+            <div class="form-group">
+                <label for="confirmPass">비밀번호 확인:</label>
+                <input type="password" id="confirmPass" name="confirmPass" required>
+            </div>
+            
+            <!-- 생년월일 입력 필드 -->
+            <div class="form-group">
+                <label for="memBirth">생년월일:</label>
+                <input type="date" id="memBirth" name="memBirth" value="<%= birthDate %>">
+            </div>
+            
+            <!-- 이메일 입력 필드 -->
+            <div class="form-group">
+                <label for="memEmail">이메일:</label>
+                <input type="email" id="memEmail" name="memEmail" value="<%= member.getMemEmail() %>" required>
+            </div>
+            
+            <!-- 전화번호 입력 필드 -->
+            <div class="form-group">
+                <label for="memPhone">전화번호:</label>
+                <input type="tel" id="memPhone" name="memPhone" value="<%= member.getMemPhone() %>" required>
+            </div>
+            
+            <!-- 우편번호 입력 필드 -->
+            <div class="form-group">
+                <label for="memZipcode">우편번호:</label>
+                <input type="text" id="memZipcode" name="memZipcode" value="<%= member.getMemZipcode() %>" readonly>
+                <button type="button" class="postcode-btn" onclick="execDaumPostcode()">우편번호 검색</button>
+            </div>
+            
+            <!-- 주소 입력 필드 -->
+            <div class="form-group">
+                <label for="memAddress">주소:</label>
+                <input type="text" id="memAddress" name="memAddress" value="<%= member.getMemAddress() %>" readonly>
+            </div>
+            
+            <!-- 상세주소 입력 필드 -->
+            <div class="form-group">
+                <label for="memDetailAddress">상세주소:</label>
+                <input type="text" id="memDetailAddress" name="memDetailAddress" value="<%= member.getMemDetailAddress() %>">
+            </div>
+            
+            <!-- 버튼 그룹 -->
+            <div class="button-container">
+                <button type="submit" class="btn btn-update">수정</button>
+                <button type="button" class="btn btn-back" onclick="history.back()">뒤로</button>
+                <button type="button" class="btn btn-delete" onclick="deleteMember()">탈퇴</button>
+                <button type="button" class="btn btn-logout" onclick="logout()">로그아웃</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

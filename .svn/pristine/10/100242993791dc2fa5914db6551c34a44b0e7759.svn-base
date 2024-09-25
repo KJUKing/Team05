@@ -1,0 +1,425 @@
+<%@page import="kr.or.ddit.payment.vo.PaymentVO" %>
+<%@page import="java.util.List" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+         pageEncoding="UTF-8" %>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>결제 페이지</title>
+    <script type="text/javascript"
+            src="<%=request.getContextPath()%>/js/jquery-3.7.1.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .prod-list, .payment-info {
+            display: inline-block;
+            width: 100%;
+            vertical-align: top;
+            margin-bottom: 20px;
+        }
+
+        .prod-item {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            width: 100%;
+            display: flex; /* 추가: Flexbox 사용 */
+            align-items: center; /* 이미지와 텍스트를 수직으로 가운데 정렬 */
+        }
+
+        .prod-item img {
+            width: 100px;
+            margin-right: 20px; /* 이미지와 텍스트 사이에 간격 추가 */
+        }
+
+        .prod-details {
+            flex: 1; /* 텍스트 영역이 이미지 오른쪽에 배치되고 남은 공간을 차지 */
+        }
+
+        .payment-info, .user-info, .delivery-info {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+        .total-price {
+            text-align: left;
+            margin-top: 20px;
+        }
+
+        .buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        .btn-pay {
+            background-color: red;
+            color: white;
+            border: none;
+        }
+
+        .btn-cancel {
+            background-color: gray;
+            color: white;
+            border: none;
+        }
+
+        select, input[type="text"] {
+            margin-top: 10px;
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        .payment-summary {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 250px; /* 총 정보 높이 */
+        }
+
+        .payment-summary p {
+            margin: 5px 0;
+        }
+
+        .btnMile {
+            width: 50px;
+        }
+    </style>
+    <%
+        List<PaymentVO> payList = (List<PaymentVO>) request.getAttribute("payList");
+        List<PaymentVO> couponList = (List<PaymentVO>) request.getAttribute("couponList");
+        List<PaymentVO> cardList = (List<PaymentVO>) request.getAttribute("cardList");
+    %>
+    <script>
+        $(document).ready(function () {
+            // 쉼표를 제거한 후 정수로 변환
+            var originalTotalPrice = parseInt($('#totalprice').text().replace(/,/g, ''));
+
+
+
+            // 쿠폰과 마일리지 기본 비활성화
+            $('#coupon').prop('disabled', true);
+            $('#mileageInput').prop('disabled', true);
+
+            // 1. 상품 선택 및 해제 시 실시간으로 가격 갱신
+            $('input[name="couponProd"]').on('change', function () {
+                if ($(this).is(':checked')) {
+                    // 상품이 선택되면 쿠폰과 마일리지 활성화
+                    $('#coupon').prop('disabled', false);
+                    $('#mileageInput').prop('disabled', false);
+                } else {
+                    // 상품 해제 시 가격을 원래 저장된 값으로 복구
+                    // 가격을 포맷할 때 소수점 제거 및 천 단위 구분
+                    $('#totalprice').text(totalPrice.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ','));  // 최종 가격 갱신, '원' 제거
+
+
+                    $('#coupon').val('none').prop('disabled', true);  // 쿠폰 비활성화
+                    $('#mileageInput').val('').prop('disabled', true);  // 마일리지 비활성화
+                }
+            });
+
+            // 2. 쿠폰 선택 시 가격 원상복구 후 할인 적용 및 중복 제거
+            $('#coupon').on('change', function () {
+                var coupId = $(this).val();  // 선택한 쿠폰 ID
+                var selectedCartId = $('input[name="couponProd"]:checked').attr('data-cart-id');
+
+                console.log('고른 카트아이디' , selectedCartId);
+
+                // 2-1. 쿠폰이 선택되지 않은 경우 (none) 원래 가격 복구
+                if (coupId === 'none' || !coupId) {  // 쿠폰 선택이 없거나 none인 경우
+                    $('#totalprice').text(originalTotalPrice.toLocaleString());  // 원래 가격으로 복구
+                    return;
+                }
+
+                // 2-2. 쿠폰과 장바구니 항목이 선택된 경우 쿠폰 할인 적용
+                if (!selectedCartId) {
+                    alert("쿠폰을 적용할 장바구니 항목을 선택하세요.");
+                    return;
+                }
+
+                // 쿠폰 할인 적용 (선택된 장바구니 항목에만 적용)
+                $.ajax({
+                    url: '<%=request.getContextPath()%>/payment/couponDiscount.do',
+                    type: 'POST',
+                    data: {coupId: coupId},
+                    dataType: 'json',
+                    success: function (res) {
+                        var discount = res.couponDiscount;
+                        var totalPrice = 0;
+
+                        // 각 장바구니 항목별 가격 합산 및 할인 적용
+                        $('input[name="cart_id[]"]').each(function (index) {
+                            var cartId = $(this).val();  // 현재 장바구니 항목의 cart_id
+                            var prodPrice = parseInt($('input[name="prod_price[]"]').eq(index).val());  // 상품 가격
+                            var quantity = parseInt($('input[name="dcart_qty[]"]').eq(index).val());  // 수량
+
+                            // 선택한 장바구니 항목에만 쿠폰 적용
+                            if (cartId === selectedCartId) {
+                                var discountedPrice = prodPrice * quantity * (1 - discount / 100);
+                                totalPrice += discountedPrice;
+                            } else {
+                                // 다른 장바구니 항목은 원래 가격 유지
+                                totalPrice += prodPrice * quantity;
+                            }
+                        });
+
+                        // '원'을 제거하고 쉼표 포맷 적용
+                        $('#totalprice').text(totalPrice.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ','));  // 최종 가격 갱신
+                    },
+                    error: function (xhr) {
+                        console.log("쿠폰 적용 중 오류 발생: " + xhr.status);
+                    }
+                });
+            });
+
+
+            // 3. 마일리지 적용 시 가격 원상복구 후 할인 적용
+            $('#applyMileage').on('click', function () {
+                // 가격 원상복구
+                $('#totalprice').text(originalTotalPrice.toLocaleString());  // 저장된 초기 가격으로 복구
+                if ($('#mileageInput').val() > 0) {
+                    $('#coupon').val('none').prop('disabled', true);  // 마일리지 입력 시 쿠폰 비활성화
+                }
+            });
+
+            // 4. 결제 정보 전송
+            $('#paymentInsert').on('click', function () {
+                var totalPrice = $('#totalprice').text();  // 총 결제 금액
+                var mileageUsed = $('#hiddenMileage').val();  // 사용한 마일리지
+                var couponId = $('#coupon').val();  // 선택한 쿠폰 ID
+                var cardId = $('#paymentMethod').val();  // 결제 수단
+                var memId = $('#mem_id').val();  // 회원 ID
+                var selectedCartId = $('input[name="couponProd"]:checked').data('cart-id'); // 쿠폰이 적용된 cart_id
+
+                // 모든 hidden input의 cart_id, prod_price, dcart_qty 값을 배열로 가져옴
+                var cartIds = [];
+                var prodPrices = [];
+                var dcartQtys = [];
+                var coupIds = [];  // 각 상품에 적용된 쿠폰 ID 리스트
+
+                $('input[name="cart_id[]"]').each(function () {
+                    var cartId = $(this).val();
+                    cartIds.push(cartId);
+                    if (cartId === selectedCartId) {
+                        // 선택된 상품에는 쿠폰 ID 적용
+                        coupIds.push(couponId);
+                    } else {
+                        // 나머지 상품은 쿠폰을 적용하지 않음 (null 처리)
+                        coupIds.push(null);
+                    }
+                });
+
+                $('input[name="prod_price[]"]').each(function () {
+                    prodPrices.push($(this).val());
+                });
+
+                $('input[name="dcart_qty[]"]').each(function () {
+                    dcartQtys.push($(this).val());
+                });
+
+                // POST 방식으로 결제 정보 전송
+                $.ajax({
+                    url: '<%=request.getContextPath()%>/payment/paymentInsert.do',
+                    type: 'POST',
+                    data: {
+                        totalprice: totalPrice,
+                        mile_used: mileageUsed,
+                        coup_ids: coupIds,  // 복수의 coup_id 배열로 전송 (각 상품별로 적용된 쿠폰)
+                        card_id: cardId,
+                        mem_id: memId,
+                        cart_ids: cartIds,  // 복수의 cart_id 배열로 전송
+                        prod_prices: prodPrices,  // 복수의 prod_price 배열로 전송
+                        dcart_qtys: dcartQtys  // 복수의 dcart_qty 배열로 전송
+                    },
+                    traditional: true, // 배열을 전송할 때 사용
+                    success: function (res) {
+                        alert("결제가 완료되었습니다.");
+                        window.location.href = '<%=request.getContextPath()%>/main';
+                    },
+                    error: function (xhr) {
+                        alert("결제 중 오류 발생: " + xhr.status);
+                    }
+                });
+            });
+        });
+
+
+        $('.cancel-btn').on('click', function () {
+            var prodId = $(this).data('prod-id');  // 클릭한 상품의 prod_id 가져오기
+
+            // AJAX 요청으로 해당 상품 삭제
+            $.ajax({
+                url: '<%=request.getContextPath()%>/remove/removeItem.do',  // 상품 삭제 처리할 서버 URL
+                type: 'POST',
+                data: {
+                    prod_id: prodId
+                },
+                success: function (res) {
+                    // 성공적으로 삭제되면 해당 상품을 화면에서 제거
+                    $('div[data-prod-id="' + prodId + '"]').remove();
+                    alert('상품이 삭제되었습니다.');
+                },
+                error: function (xhr) {
+                    alert("상품 삭제 중 오류 발생: " + xhr.status);
+                }
+            });
+        });
+
+
+    </script>
+</head>
+<body>
+<div class="container">
+    <div class="title">주문 결제 페이지</div>
+
+    <div class="prod-list">
+        <% for (PaymentVO payVo : payList) { %>
+        <div class="prod-item" data-prod-id="<%=payVo.getProd_id()%>">
+            <img src="<%= request.getContextPath() %>/images/prodImageView.do?imgId=<%=payVo.getProd_image()%>"
+                 alt="<%= payVo.getProd_name() %>">
+            <div class="prod-details">
+                <p>상품명: <%= payVo.getProd_name() %>
+                </p>
+                <p>옵션: <%= payVo.getOption_name() %>/<%= payVo.getOption_value() %>
+                </p>
+                <p>수량: <%= payVo.getDcart_qty() %>개</p>
+                <p>가격: ₩<%= String.format("%,d", Integer.parseInt(payVo.getProd_price())) %>원</p>
+
+                <!-- 쿠폰을 특정 상품에만 적용하는 라디오 버튼 -->
+                <label>
+                    <input type="radio" name="couponProd" data-cart-id="<%= payVo.getCart_id() %>" value="<%= payVo.getProd_id() %>"> 이 상품에 쿠폰 적용
+                </label>
+            </div>
+
+            <!-- 각각의 cart_id와 그에 따른 정보를 배열로 전송 -->
+            <input type="hidden" name="prod_id[]" value="<%= payVo.getProd_id() %>">
+            <input type="hidden" name="cart_id[]" value="<%= payVo.getCart_id() %>">
+            <input type="hidden" name="prod_price[]" value="<%= payVo.getProd_price() %>">
+            <input type="hidden" name="dcart_qty[]" value="<%= payVo.getDcart_qty() %>">
+        </div>
+        <% } %>
+
+
+        <!-- 주문자 정보 -->
+        <div class="user-info">
+            <h3>주문자 정보</h3>
+            <p>
+                이름:
+                <%=payList.get(0).getMem_name() %>
+            </p>
+            <p>
+                전화번호:
+                <%=payList.get(0).getMem_phone() %>
+            </p>
+            <p>
+                주소:
+                <%=payList.get(0).getMem_zipcode() %>
+                <%=payList.get(0).getMem_address() %>
+                <%=payList.get(0).getMem_detail_address() %>
+            </p>
+        </div>
+
+        <!-- 배송 정보 -->
+        <div class="delivery-info">
+            <h3>배송 정보</h3>
+            <p>
+                이름:
+                <%=payList.get(0).getMem_name() %>
+            </p>
+            <p>
+                전화번호:
+                <%=payList.get(0).getMem_phone() %>
+            </p>
+            <p>
+                주소:
+                <%=payList.get(0).getMem_zipcode() %>
+                <%=payList.get(0).getMem_address() %>
+                <%=payList.get(0).getMem_detail_address() %>
+            </p>
+        </div>
+    </div>
+
+    <div class="payment-info">
+        <div class="payment-info">
+            <div class="payment-summary">
+                <!-- 쿠폰 사용 -->
+                <label for="coupon">쿠폰 사용:</label>
+                <select id="coupon">
+                    <option value="none">쿠폰 선택</option>
+                    <% for (PaymentVO payVo : couponList) { %>
+                    <option value="<%=payVo.getCoup_id()%>" name="coup_id"><%=payVo.getCoup_name() %>
+                    </option>
+                    <% } %>
+                </select>
+
+                <!-- 보유 마일리지 -->
+                <p>보유 마일리지: <span id="mem_mileage" name="mem_mileage"><%=payList.get(0).getMem_mileage()%></span>원</p>
+
+                <!-- 마일리지 입력 폼 -->
+                <label for="mileageInput">사용할 마일리지:</label>
+                <input type="number" id="mileageInput" name="mileageInput" placeholder="0" min="0" disabled>
+                <!-- 처음에 비활성화 -->
+                <button id="applyMileage">적용</button>
+
+                <!-- 총 가격 계산 -->
+                <%
+                    int totalPrice = 0;
+                    for (PaymentVO payVo : payList) {
+                        // 가격과 수량 모두 String일 경우 int로 변환 후 연산
+                        int prodPrice = Integer.parseInt(payVo.getProd_price()); // 가격을 정수로 변환
+                        int dcartQty = Integer.parseInt(String.valueOf(payVo.getDcart_qty())); // 수량을 정수로 변환
+                        totalPrice += prodPrice * dcartQty; // 총합 계산
+                    }
+                %>
+                <!-- 총 가격 표시 -->
+                <p class="total-price">총 가격: <span id="totalprice"><%= String.format("%,d", totalPrice) %></span>원</p>
+            </div>
+        </div>
+
+        <!-- 결제 수단 선택 -->
+        <label for="paymentMethod">결제 수단:</label> <select id="paymentMethod">
+        <option>결제 수단 선택</option>
+        <% for (PaymentVO payVo : cardList) { %>
+        <option value="<%=payVo.getCard_id()%>" name="card_id"><%=payVo.getCard_name() %>
+        </option>
+        <% } %>
+    </select>
+    </div>
+
+    <div class="buttons">
+        <input type="hidden" id="mem_id" name="mem_id" value="<%= payList.get(0).getMem_id() %>">
+
+        <input type="submit" class="btn btn-pay" id="paymentInsert" value="결제">
+        <input type="button" class="btn btn-cancel" id="paymentcancel"
+               onclick="window.location.href='<%=request.getContextPath()%>/main';" value="취소">
+    </div>
+
+
+</div>
+</body>
+</html>

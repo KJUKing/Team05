@@ -40,4 +40,10 @@
 		select * from oprod order by prod_id desc
 	</select>
 	
+	<select id="getOneOprod" parameterType="String" resultType="oprodVo">
+		select oprod_qty from oprod where prod_id = #{prod_id}
+	</select>
+	
+	
+	
 </mapper>

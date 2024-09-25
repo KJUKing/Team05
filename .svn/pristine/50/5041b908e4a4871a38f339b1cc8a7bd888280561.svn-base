@@ -1,0 +1,98 @@
+package kr.or.ddit.member.controller;
+
+/**
+ * 로그아웃 처리를 담당하는 컨트롤러
+ * 
+ * - 이 서블릿은 사용자의 로그아웃 요청을 처리합니다.
+ * - 세션을 무효화하여 로그아웃 처리
+ * - 보호된 페이지로의 리다이렉트 방지
+ * - 사용자 유형에 따른 적절한 리다이렉트 처리
+ * - 정석진 2024-09-23- 
+ */
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+//@WebServlet 어노테이션: 이 클래스가 서블릿임을 선언하고, URL 매핑을 지정하고 "/member/logout.do" 경로로 들어오는 요청을 이 서블릿이 처리
+@WebServlet("/member/logout.do")
+public class LogoutController extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    // 이 페이지들은 로그아웃 후 직접 접근이 제한됩니다.
+    private static final List<String> PROTECTED_PAGES = Arrays.asList(
+        "cartList.do", "myPage.do", "editMember.do", "myBuyPage.do",
+        "mileCoupon.do", "myreviewList.do", "wishList.do", "riturnView.do",
+        "adminDashboard.do","memberList.do","expressList.do","noticeList.do",
+        "couponList.do","riturnList.do","cardList.do","adminreportview.do",
+        "memberDetail.do"
+    );
+    // 로그아웃 프로세스를 실행하고 적절한 페이지로 리다이렉트합니다.
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        String userType = null;
+        String returnUrl = null;
+        
+        // Referer 헤더에서 이전 페이지 URL 가져오기
+        String referer = request.getHeader("Referer");
+        if (referer != null && !referer.contains("/member/logout.do")) {
+            returnUrl = referer;
+        }
+        // 세션이 존재하면 사용자 타입을 가져오고 세션 무효화
+        if (session != null) {
+            userType = (String) session.getAttribute("userType");
+            session.invalidate();
+        }
+        // 새로운 세션 생성
+        request.getSession(true);
+        
+        // returnUrl이 설정된 경우 URL 디코딩
+        if (returnUrl != null) {
+            try {
+                returnUrl = URLDecoder.decode(returnUrl, "UTF-8");
+            } catch (IllegalArgumentException e) {
+                // 디코딩 중 오류가 발생하면 무시하고 원래 값 사용
+            }
+        }
+
+        System.out.println("User type: " + userType);
+        System.out.println("Return URL: " + returnUrl);
+        // 리다이렉트 URL 결정
+        String redirectUrl = determineRedirectUrl(request, returnUrl, userType);
+        
+        // 최종 리다이렉트 URL 로그 출력 및 리다이렉트 실행
+        System.out.println("Redirecting to: " + redirectUrl);
+        response.sendRedirect(redirectUrl);
+    }
+    
+    //리다이렉트 URL을 결정하는 메서드
+    private String determineRedirectUrl(HttpServletRequest request, String returnUrl, String userType) {
+        if (isProtectedPage(returnUrl) || "admin".equals(userType)) {
+            // 보호된 페이지거나 관리자인 경우 메인 페이지로 리다이렉트
+            return request.getContextPath() + "/main?view=index";
+        } else if (returnUrl != null && !returnUrl.isEmpty()) {
+            // 보호되지 않은 일반 페이지인 경우 해당 페이지로 리다이렉트
+            return returnUrl;
+        } else {
+            // returnUrl이 없는 경우 기본적으로 메인 페이지로 리다이렉트
+            return request.getContextPath() + "/main?view=index";
+        }
+    }
+    // 주어진 URL이 보호된 페이지인지 확인하는 메서드
+    // 보호된 페이지이면 true, 아니면 false
+    private boolean isProtectedPage(String url) {
+        return url != null && PROTECTED_PAGES.stream().anyMatch(url::contains);
+    }
+    
+    //모든 GET 요청을 POST 메서드로 전달합니다.
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        doPost(request, response);
+    }
+}

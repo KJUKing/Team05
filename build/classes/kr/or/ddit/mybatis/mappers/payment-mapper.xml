@@ -3,22 +3,26 @@
 
 <mapper namespace="payment">
 
-	<select id="paymentList2" resultType="payVo">
+	<select id="paymentList" resultType="payVo" parameterType="map">
 		select *
 		  from prod A ,cart B, DETAIL_CART C ,member D ,option_table E
 		 where a.prod_id = c.prod_id
 		   and b.mem_id = d.mem_id
-		   and b.cart_id = c.cart_id  
+		   and b.cart_id = c.cart_id
 		   and e.option_id = c.option_id
-		   and b.mem_id = 'p002'
-		   and b.cart_id='c005'
+		   AND b.mem_id = #{memId}
+		   AND b.cart_id = #{cartId}
 	</select>
 
 	<select id="couponList" resultType="payVo" parameterType="String">
-		select * 
-		from coupon A, detail_coupon B
-		where a.mem_id = #{mem_id}
+		SELECT *
+		FROM coupon A
+				 JOIN detail_coupon B
+					  ON A.coup_id = B.coup_id
+		WHERE A.mem_id = #{mem_id}
+		  AND B.coup_status = '1'
 	</select>
+
 
 	<select id="couponDiscount" resultType="payVo">
 		SELECT coup_amount
@@ -31,19 +35,25 @@
 		select * from card
 	</select>
 
+<!--	<insert id="paymentInsert" parameterType="payVo">-->
+<!--		insert into-->
+<!--		payment(pay_id,pay_date,pay_price,pay_option,pay_status,mile_used,coup_id,card_id,cart_id,del_id)-->
+<!--		values(generate_pay_id(),SYSDATE,#{pay_price},'card',1,#{mile_used},#{coup_id},#{card_id},'c005',-->
+<!--		(SELECT del_id FROM (SELECT del_id FROM delivery ORDER BY-->
+<!--		DBMS_RANDOM.VALUE) WHERE ROWNUM = 1)-->
+<!--		)-->
+<!--	</insert>-->
+
 	<insert id="paymentInsert" parameterType="payVo">
-		insert into
-		payment(pay_id,pay_date,pay_price,pay_option,pay_status,mile_used,coup_id,card_id,cart_id,del_id)
-		values(generate_pay_id(),SYSDATE,#{pay_price},'card',1,#{mile_used},#{coup_id},#{card_id},'c005',
-		(SELECT del_id FROM (SELECT del_id FROM delivery ORDER BY
-		DBMS_RANDOM.VALUE) WHERE ROWNUM = 1)
-		)
+		INSERT INTO payment(pay_id, pay_date, pay_price, pay_option, pay_status, mile_used, coup_id, card_id, cart_id, del_id)
+		VALUES(generate_pay_id(), SYSDATE, #{pay_price}, 'card', 1, #{mile_used}, #{coup_id}, #{card_id}, #{cart_id},
+			   (SELECT del_id FROM (SELECT del_id FROM delivery ORDER BY DBMS_RANDOM.VALUE) WHERE ROWNUM = 1))
 	</insert>
 
 	<update id="mileageUpdate" parameterType="payVo">
 		update member set
 		mem_mileage = #{mem_mileage}
-		where mem_id = 'p002'
+		where mem_id = #{mem_id}
 	</update>
 	
 	<delete id="removeItem" parameterType="String">
@@ -56,6 +66,20 @@
 	    WHERE mem_id = #{memId}
 	</update>
 	
- 
+	<update id="updateCouponStatus" parameterType="String">
+		UPDATE detail_coupon SET coup_status = '0' WHERE coup_id = #{coup_id}
+	</update>
+
+	<select id="paymentListForCart" resultType="payVo" parameterType="map">
+		select *
+		from prod A
+				 join detail_cart C on A.prod_id = C.prod_id
+				 join cart B on B.cart_id = C.cart_id
+				 join member D on B.mem_id = D.mem_id
+				 join option_table E on C.option_id = E.option_id
+		where B.mem_id = #{memId}
+		  and B.cart_status = 'CART'
+	</select>
+
 
 </mapper>

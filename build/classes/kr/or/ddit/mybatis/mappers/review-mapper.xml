@@ -7,7 +7,7 @@
 
 
  <select id="getAllReview" resultType="reviewVO">
-     SELECT r.*
+     SELECT *
     FROM review r
     LEFT JOIN (
         SELECT review_id, COUNT(*) as report_count
@@ -15,6 +15,8 @@
         WHERE REPORT_STATUS = 'PENDING'
         GROUP BY review_id
     ) rep ON r.review_id = rep.review_id
+    LEFT JOIN prod p ON r.prod_id = p.prod_id
+    LEFT JOIN option_table o ON r.option_id = o.option_id
     WHERE NVL(rep.report_count, 0) &lt; 5
     </select>
 
@@ -87,10 +89,13 @@
         JOIN prod prod ON dc.prod_id = prod.prod_id
         JOIN option_table o ON dc.option_id = o.option_id
         JOIN cart c ON p.cart_id = c.cart_id
+        LEFT JOIN review r ON dc.cart_id = r.cart_id AND dc.prod_id = r.prod_id AND dc.option_id = r.option_id
     WHERE 
         c.mem_id = #{memId}
         AND p.pay_status = '1'
+        AND r.prod_id IS NULL  <!-- 리뷰가 작성되지 않은 상품만 필터링 -->
 </select>
+
 	
 
 <!-- 리뷰 insert -->
@@ -114,12 +119,8 @@
         SYSDATE,
         'N',
         #{cart_id},
-        (SELECT dc.option_id 
-         FROM detail_cart dc 
-         WHERE dc.cart_id = #{cart_id}),
-        (SELECT dc.prod_id 
-         FROM detail_cart dc 
-         WHERE dc.cart_id = #{cart_id})
+        #{option_id},
+        #{prod_id}
     )
 </insert>
 
@@ -148,13 +149,35 @@
 
 <!-- 리뷰 중복 확인은 주문결제하고나서 거기에 있는 memId와 cartId로 중복확인하기  -->
 	<select id="isReviewExist" resultType="int">
-    SELECT COUNT(*) 
-    FROM review 
-    WHERE mem_id = #{memId} 
-      AND cart_id = #{cartId}
-</select>
+	    SELECT COUNT(*) 
+	    FROM review 
+	    WHERE mem_id = #{memId} 
+	      AND prod_id = #{prodId}
+	</select>
+
+	<!-- 상품 상세페이지에 리뷰 출력용 -->
+	<select id="getProdReview" resultType="reviewVo">
+		select * from review where review_delyn = 'N' and prod_id = '${prod_id}'
+	</select>
 
 
+
+	<select id="prodReview" resultType="reviewVo" parameterType="reviewVo">
+		SELECT *
+	    FROM review r
+	    LEFT JOIN (
+	        SELECT review_id, COUNT(*) as report_count
+	        FROM report
+	        WHERE REPORT_STATUS = 'PENDING'
+	        GROUP BY review_id
+	    ) rep ON r.review_id = rep.review_id
+	    LEFT JOIN prod p ON r.prod_id = p.prod_id
+	    LEFT JOIN option_table o ON r.option_id = o.option_id
+	    WHERE NVL(rep.report_count, 0) &lt; 5
+	    AND r.prod_id = #{prod_id}  <!-- 상품 ID를 조건으로 추가 -->
+
+
+	</select>
 
 
 </mapper>

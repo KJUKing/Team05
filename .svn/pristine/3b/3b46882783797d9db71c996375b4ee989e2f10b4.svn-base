@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        
+<mapper namespace="review" >
+
+
+ <select id="getAllReview" resultType="reviewVO">
+     SELECT *
+    FROM review r
+    LEFT JOIN (
+        SELECT review_id, COUNT(*) as report_count
+        FROM report
+        WHERE REPORT_STATUS = 'PENDING'
+        GROUP BY review_id
+    ) rep ON r.review_id = rep.review_id
+    LEFT JOIN prod p ON r.prod_id = p.prod_id
+    LEFT JOIN option_table o ON r.option_id = o.option_id
+    WHERE NVL(rep.report_count, 0) &lt; 5
+    </select>
+
+
+
+
+
+
+
+<update id ="updateReport" parameterType="String">
+	update review set review_report = review_report+1 where review_id=#{review_id}
+</update>
+
+
+<delete id="deleteReview" parameterType="String">
+	 delete review
+        where review_id=#{review_id}
+</delete>
+
+
+<!-- 리뷰 업데이트 -->
+<update id="updateReview" parameterType="reviewVo">
+	 update review set
+        review_star=#{review_star}, review_content=#{review_content}
+        where review_id=#{review_id}
+</update>
+
+<!-- 	리뷰 상세보기 -->
+	<select id ="reviewDetail" parameterType="string" resultType="reviewVo">
+		 select
+        b.review_id,
+        a.mem_name,
+        b.review_star,
+        b.review_content,
+        b.review_date,
+        c.prod_name,
+        d.option_name
+    from
+        review b
+    join
+        member a on a.mem_id = b.mem_id
+    join
+        prod c on c.prod_id = b.prod_id
+    join
+        option_table d on d.option_id = b.option_id
+    where
+        b.review_id = #{review_id}
+	</select>
+
+<!-- 결제 완료인 애들만 가져오기 -->
+<!-- 결제 완료된 장바구니 목록을 조회하는 쿼리 -->
+<select id="getPaidCartIdsForMember" parameterType="string" resultType="string">
+    SELECT 
+        p.cart_id
+    FROM 
+        payment p
+        JOIN cart c ON p.cart_id = c.cart_id
+    WHERE 
+        c.mem_id = #{memId}
+        AND p.pay_status = '1'
+</select>
+
+<!-- 결제된 장바구니의 상품 정보와 옵션 정보를 조회하는 쿼리 -->
+<select id="getProductInfoForCart" parameterType="string" resultType="reviewVo">
+    SELECT 
+        *
+    FROM 
+        payment p
+        JOIN detail_cart dc ON p.cart_id = dc.cart_id
+        JOIN prod prod ON dc.prod_id = prod.prod_id
+        JOIN option_table o ON dc.option_id = o.option_id
+        JOIN cart c ON p.cart_id = c.cart_id
+        LEFT JOIN review r ON dc.cart_id = r.cart_id AND dc.prod_id = r.prod_id AND dc.option_id = r.option_id
+    WHERE 
+        c.mem_id = #{memId}
+        AND p.pay_status = '1'
+        AND r.prod_id IS NULL  <!-- 리뷰가 작성되지 않은 상품만 필터링 -->
+</select>
+
+	
+
+<!-- 리뷰 insert -->
+<insert id="insertReview" parameterType="reviewVo">
+    INSERT INTO review (
+        review_id, 
+        mem_id, 
+        review_star, 
+        review_content, 
+        review_date, 
+        review_delyn, 
+        cart_id, 
+        option_id, 
+        prod_id
+    )
+    VALUES (
+        #{review_id},
+        #{mem_id},
+        #{review_star},
+        #{review_content},
+        SYSDATE,
+        'N',
+        #{cart_id},
+        #{option_id},
+        #{prod_id}
+    )
+</insert>
+
+<!-- 시퀀스 -->
+<select id="getNextReviewId" resultType="String">
+    SELECT TO_CHAR(review_seq.NEXTVAL) FROM DUAL
+</select>
+
+
+
+       <!-- prod_id를 조회하는 쿼리 -->
+    <select id="getProdId" parameterType="String" resultType="String">
+     
+    SELECT dc.prod_id
+    FROM detail_cart dc
+    JOIN cart c ON dc.cart_id = c.cart_id
+    WHERE dc.cart_id = #{cart_id}
+
+
+    </select>
+	
+<!-- 	로그인된 회원의 리뷰 -->
+	<select id="getMyReview" parameterType="string" resultType="reviewVo">
+		select * from review where mem_id=#{mem_id}
+	</select>
+
+<!-- 리뷰 중복 확인은 주문결제하고나서 거기에 있는 memId와 cartId로 중복확인하기  -->
+	<select id="isReviewExist" resultType="int">
+	    SELECT COUNT(*) 
+	    FROM review 
+	    WHERE mem_id = #{memId} 
+	      AND prod_id = #{prodId}
+	</select>
+
+	<!-- 상품 상세페이지에 리뷰 출력용 -->
+	<select id="getProdReview" resultType="reviewVo">
+		select * from review where review_delyn = 'N' and prod_id = '${prod_id}'
+	</select>
+
+	<select id="prodReview" resultType="reviewVo" parameterType="reviewVo">
+		select *
+		  from review A, prod B, oprod C, option_table D, report E
+		 where a.prod_id = b.prod_id
+		   and b.prod_id = c.prod_id
+		   and c.option_id = d.option_id
+		   and a.review_id = e.review_id
+		   and b.prod_id = #{prod_id}
+		   and d.option_id = #{option_id}
+		   and e.report_status = 'PENDING'
+		   and ROWNUM = 1
+		   and NVL(rep.report_count, 0) &lt; 5
+	</select>
+
+
+</mapper>

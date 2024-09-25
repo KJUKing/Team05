@@ -1,6 +1,7 @@
 package kr.or.ddit.report.controller;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -45,13 +46,24 @@ public class ReportView extends HttpServlet {
         try {
             int cnt = service.reportInsert(reportVo);
             if (cnt > 0) {
-                // 성공적으로 삽입된 경우
-                RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/report/reportSuccess.jsp");
-                dispatcher.forward(request, response);
+            	   response.setContentType("text/html; charset=UTF-8");
+                   PrintWriter out = response.getWriter();
+                   
+                   out.println("<script>alert('신고가 정상적으로 처리되었습니다.'); history.back();</script>");
+                   out.flush();
+                   out.println("</script>");
+                   
+                   out.flush();
             } else {
                 // 실패한 경우 처리
-            	  RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/report/reportFail.jsp");
-	                dispatcher.forward(request, response);
+            	   response.setContentType("text/html; charset=UTF-8");
+                   PrintWriter out = response.getWriter();
+                   
+                   out.println("<script>alert('이미 신고하셨습니다.'); history.back();</script>");
+                   out.flush();
+                   out.println("</script>");
+                   
+                   out.flush();
             }
         } catch (Exception e) {
             e.printStackTrace(); // 예외 로그

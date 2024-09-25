@@ -89,4 +89,9 @@
     <select id="getMemberByEmail" parameterType="string" resultMap="memberResultMap">
     SELECT * FROM MEMBER WHERE MEM_EMAIL = #{email} AND MEM_DELYN = 'N'
      </select>
+     
+   
+     
+     
+     
 </mapper>

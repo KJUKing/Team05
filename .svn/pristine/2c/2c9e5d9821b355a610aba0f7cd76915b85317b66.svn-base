@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="prod">
+
+	<resultMap id="prodResultMap" type="prodVo">
+		<result property="prod_id" column="PROD_ID"/>
+		<result property="prod_date" column="PROD_DATE"/>
+		<result property="prod_name" column="PROD_NAME"/>
+		<result property="prod_content" column="PROD_CONTENT"/>
+		<result property="prod_price" column="PROD_PRICE"/>
+		<result property="prod_image" column="PROD_IMAGE"/>
+		<result property="prod_yn" column="PROD_YN"/>
+		<result property="prod_sale" column="PROD_SALE"/>
+		<result property="dcate_id" column="DCATE_ID"/>
+	</resultMap>
+
+
+	<!-- 
+	<i	nsert id="insertProd" parameterType="prodVo">
+		insert into prod (prod_id, prod_date, prod_name, prod_content, prod_price,
+    					  prod_image, prod_yn, prod_sale, dcate_id) 
+    	values('P' || TO_CHAR(prod_seq.NEXTVAL, 'FM000000'), sysdate, #{prod_name}, #{prod_content}, #{prod_price},
+    	#{prod_image}, #{prod_yn}, #{prod_sale},#{dcate_id})
+	</insert>
+	 -->
+	
+	<insert id="insertProd" parameterType="prodVo">
+	
+	
+	 <selectKey keyProperty="prod_id"  order="BEFORE" resultType="string">
+	      select 'P' || TO_CHAR(prod_seq.NEXTVAL, 'FM000000')  from dual
+	   </selectKey>
+	   
+	   
+    	insert into prod (prod_id, prod_date, prod_name, prod_content, prod_price,
+                      	  prod_yn, prod_sale, dcate_id) 
+    	values(#{prod_id}, sysdate, #{prod_name}, #{prod_content}, #{prod_price},
+        #{prod_yn}, #{prod_sale}, #{dcate_id})
+        
+        
+       
+	</insert>
+	
+
+	 
+	<delete id="deleteProd" parameterType="String">
+		delete from prod where prod_id = #{prod_id}
+	</delete>
+	
+	<update id="updateProd" parameterType="prodVo">
+		update prod set 
+		prod_date = sysdate, prod_name = #{prod_name}, prod_content = #{prod_content}, prod_price = #{prod_price},
+		prod_yn = #{prod_yn}, prod_sale = #{prod_sale},
+		dcate_id = (select dcate_id from detail_category where dcate_id = #{dcate_id})
+		where prod_id = #{prod_id}
+	</update>
+	
+	<select id="getAllProd" resultType="prodVo">
+		select * from prod order by prod_id desc
+	</select>
+	
+	<select id="getOneProd" parameterType="String" resultType="prodVo">
+		select * from prod where prod_id = #{prod_id}
+	</select>
+	
+	<!-- (이번달 기준) 신상품 조회 -->
+	<!-- <select id="selectForNewArr" resultType="prodVo">
+		select * from prod
+		where extract(month from prod_date) = extract(month from sysdate)
+  			  and extract(year from prod_date) = extract(year from sysdate)
+  		order by prod_date desc
+	</select> -->
+	
+	<select id="getPaginatedNewArrivals" parameterType="map" resultMap="prodResultMap">
+    	SELECT * FROM (
+        	SELECT ROWNUM AS rnum, A.*
+        	FROM (
+            	SELECT *
+            	FROM prod
+            	WHERE extract(month from prod_date) = extract(month from sysdate)
+              	AND extract(year from prod_date) = extract(year from sysdate)
+            	ORDER BY prod_date DESC
+        	) A
+        	WHERE ROWNUM &lt;= #{end}
+    	)
+    	WHERE rnum &gt;= #{start}	
+	</select>
+	
+	
+	<!-- (좋아요 기준) 베스트 조회 -->
+	<!-- <select id="selectForBest" resultType="prodVo">
+		select p.*, l.like_count from prod p
+		join (select prod_id, count(*) as like_count
+    		  from likes
+    		  group by prod_id) 
+    	l on p.prod_id = l.prod_id
+		order by l.like_count desc
+	</select> -->
+	
+	<select id="getPaginatedBestList" parameterType="map" resultMap="prodResultMap">
+    SELECT * FROM (
+        SELECT ROWNUM AS rnum, A.*
+        FROM (
+            SELECT p.*, l.like_count
+            FROM prod p
+            JOIN (
+                SELECT prod_id, COUNT(*) AS like_count
+                FROM likes
+                GROUP BY prod_id
+            ) l ON p.prod_id = l.prod_id
+            ORDER BY l.like_count DESC
+        ) A
+        WHERE ROWNUM &lt;= #{end}
+    )
+    WHERE rnum &gt;= #{start}
+	</select>
+	
+	
+	
+	<!-- (카테고리 기준) 겉옷 종류 조회-->
+	<!-- <select id="selectForOuter" resultType="prodVo">
+		select p.* from prod p
+		join detail_category dc on p.dcate_id = dc.dcate_id
+		where dc.cate_id = 'C000001'
+		order by prod_date desc
+	</select> -->
+	
+	<select id="getPaginatedOuterList" parameterType="map" resultMap="prodResultMap">
+    SELECT * FROM (
+        SELECT ROWNUM AS rnum, A.*
+        FROM (
+            SELECT p.*
+            FROM prod p
+            JOIN detail_category dc ON p.dcate_id = dc.dcate_id
+            WHERE dc.cate_id = 'C000001'
+            ORDER BY prod_date DESC
+        ) A
+        WHERE ROWNUM &lt;= #{end}
+    )
+    WHERE rnum &gt;= #{start}
+	</select>
+	
+	
+	
+	<!-- (카테고리 기준) 상의 종류 조회 -->
+	<!-- <select id="selectForTop" resultType="prodVo">
+		select p.* from prod p
+		join detail_category dc on p.dcate_id = dc.dcate_id
+		where dc.cate_id = 'C000002'
+		order by prod_date desc
+	</select> -->
+	
+	<select id="getPaginatedTopList" parameterType="map" resultMap="prodResultMap">
+    SELECT * FROM (
+        SELECT ROWNUM AS rnum, A.*
+        FROM (
+            SELECT p.*
+            FROM prod p
+            JOIN detail_category dc ON p.dcate_id = dc.dcate_id
+            WHERE dc.cate_id = 'C000002'
+            ORDER BY prod_date DESC
+        ) A
+        WHERE ROWNUM &lt;= #{end}
+    )
+    WHERE rnum &gt;= #{start}
+	</select>
+	
+	
+	
+	<!-- (카테고리 기준) 하의 종류 조회 -->
+	<!-- <select id="selectForBottom" resultType="prodVo">
+		select p.* from prod p
+		join detail_category dc on p.dcate_id = dc.dcate_id
+		where dc.cate_id = 'C000003'
+		order by prod_date desc
+	</select> -->
+	
+	<select id="getPaginatedBottomList" parameterType="map" resultMap="prodResultMap">
+    SELECT * FROM (
+        SELECT ROWNUM AS rnum, A.*
+        FROM (
+            SELECT p.*
+            FROM prod p
+            JOIN detail_category dc ON p.dcate_id = dc.dcate_id
+            WHERE dc.cate_id = 'C000003'
+            ORDER BY prod_date DESC
+        ) A
+        WHERE ROWNUM &lt;= #{end}
+    )
+    WHERE rnum &gt;= #{start}
+	</select>
+	
+	
+	<!-- (카테고리 기준) 악세서리 종류 조회 -->
+	<!-- <select id="selectForAcc" resultType="prodVo">
+		select p.* from prod p
+		join detail_category dc on p.dcate_id = dc.dcate_id
+		where dc.cate_id = 'C000004'
+		order by prod_date desc
+	</select> -->
+	
+	<select id="getPaginatedAccList" parameterType="map" resultMap="prodResultMap">
+    SELECT * FROM (
+        SELECT ROWNUM AS rnum, A.*
+        FROM (
+            SELECT p.*
+            FROM prod p
+            JOIN detail_category dc ON p.dcate_id = dc.dcate_id
+            WHERE dc.cate_id = 'C000004'
+            ORDER BY prod_date DESC
+        ) A
+        WHERE ROWNUM &lt;= #{end}
+    )
+    WHERE rnum &gt;= #{start}
+	</select>
+	
+	
+	
+	
+		
+	<select id="getWishListByMemberId" parameterType="string" resultType="prodVo">
+		SELECT *
+		FROM WISHLIST w
+				 JOIN PROD p ON w.PROD_ID = p.PROD_ID
+		WHERE w.MEM_ID = #{mem_id}
+	</select>
+
+	<!-- 상품리스트 전체 글 수 가져오기 -->
+	<select id="getTotalCount" parameterType="map" resultType="int">
+		SELECT COUNT(*)
+		FROM prod
+		<where>
+			<if test="stype != null and sword != null">
+				<choose>
+					<!-- stype 값이 'title'이면 PROD_NAME에서 검색 -->
+					<when test="stype == 'title'">
+						PROD_NAME LIKE '%' || #{sword} || '%'
+					</when>
+
+					<!-- stype 값이 'content'이면 PROD_CONTENT에서 검색 -->
+					<when test="stype == 'content'">
+						PROD_CONTENT LIKE '%' || #{sword} || '%'
+					</when>
+
+					<!-- stype 값이 'title_content'이면 제목과 내용에서 모두 검색 -->
+					<when test="stype == 'title_content'">
+						(PROD_NAME LIKE '%' || #{sword} || '%' OR PROD_CONTENT LIKE '%' || #{sword} || '%')
+					</when>
+
+				</choose>
+			</if>
+		</where>
+	</select>
+
+	<!--	페이지네이션 적용된 조회 쿼리 -->
+	<select id="getPaginatedProdList" parameterType="map" resultMap="prodResultMap">
+		SELECT * FROM (
+		SELECT ROWNUM AS rnum, A.*
+		FROM (
+		SELECT *
+		FROM prod
+		<where>
+			<if test="stype != null and sword != null">
+				<choose>
+					<!-- stype 값이 'title'이면 NOTI_TITLE에서 검색 -->
+					<when test="stype == 'title'">
+						PROD_NAME LIKE '%' || #{sword} || '%'
+					</when>
+
+					<!-- stype 값이 'content'이면 NOTI_CONTENT에서 검색 -->
+					<when test="stype == 'content'">
+						PROD_CONTENT LIKE '%' || #{sword} || '%'
+					</when>
+
+					<!-- stype 값이 'title_content'이면 제목과 내용에서 모두 검색 -->
+					<when test="stype == 'title_content'">
+						(PROD_NAME LIKE '%' || #{sword} || '%' OR PROD_CONTENT LIKE '%' || #{sword} || '%')
+					</when>
+				</choose>
+			</if>
+		</where>
+		ORDER BY PROD_ID DESC
+		) A
+		WHERE ROWNUM &lt;= #{end}
+		)
+		WHERE rnum &gt;= #{start}
+	</select>
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+

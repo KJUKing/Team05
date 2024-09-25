@@ -12,7 +12,7 @@
 		<setting name="jdbcTypeForNull" value="NULL"/>
 		
 		<!-- MyBatis에 log4j 적용하기 -->
-		<setting name="logImpl" value="LOG4J"/>
+		<!-- <setting name="logImpl" value="LOG4J"/> -->
 	</settings>
 	
 	<!-- 사용할 VO객체의 별칭 설정하기  -->

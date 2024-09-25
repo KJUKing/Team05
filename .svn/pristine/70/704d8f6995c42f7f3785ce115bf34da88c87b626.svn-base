@@ -1,0 +1,404 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff; /* 흰색 배경으로 설정 */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+}
+
+.footer {
+    background-color: #f4f0e6; /* 연한 베이지 색상 */
+    color: #333; /* 텍스트는 진한 회색으로 */
+    text-align: center;
+    padding: 10px 0;
+    width: 100%;
+    margin-top: auto;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff; /* 헤더도 흰색으로 설정 */
+    padding: 20px;
+    border-bottom: 1px solid #ddd; /* 헤더 하단에 은은한 회색 테두리 */
+}
+
+.header-top h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #333; /* 헤더 텍스트는 진한 회색 */
+}
+
+.header-options ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.header-options li {
+    display: inline;
+    margin-right: 15px;
+}
+
+.main-nav ul {
+    list-style-type: none;
+    padding: 0;
+    background-color: #f4f0e6; /* 부드러운 베이지 톤 네비게이션 */
+    overflow: hidden;
+}
+
+.main-nav li {
+    float: left;
+}
+
+.main-nav li a {
+    display: block;
+    padding: 14px 20px;
+    color: #333; /* 진한 회색 텍스트 */
+    text-align: center;
+    text-decoration: none;
+}
+
+.main-nav li a:hover {
+    background-color: #e0dbcf; /* 네비게이션 링크에 호버할 때 연한 베이지 */
+    color: #333;
+}
+
+.best-item {
+    padding: 20px;
+    background-color: #faf9f7; /* 아주 연한 아이보리 톤 */
+    flex-grow: 1;
+}
+
+.items {
+    display: flex;
+    justify-content: space-between;
+}
+
+.item-box {
+    width: 22%;
+    height: 150px;
+    background-color: #f4f0e6; /* 베이지 계열의 아이템 박스 */
+    border: 1px solid #e0dbcf; /* 부드러운 베이지 테두리 */
+    border-radius: 5px;
+}
+.main-nav {
+    background-color: #f4f0e6; /* 부드러운 베이지 톤 네비게이션 */
+    margin: 0;
+    padding: 0;
+    z-index: 10; /* 네비게이션 바가 다른 요소보다 위에 있도록 설정 */
+    position: relative; /* 드롭다운 메뉴가 부모 요소 기준으로 위치하도록 설정 */
+}
+
+.main-nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    overflow: visible; /* 드롭다운 메뉴가 제대로 표시되도록 설정 */
+}
+
+.main-nav::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.main-nav li {
+    float: left;
+    position: relative; /* 드롭다운 메뉴가 이 위치를 기준으로 절대 위치 설정 */
+}
+
+.main-nav li a {
+    display: block;
+    padding: 14px 20px;
+    color: #333;
+    text-align: center;
+    text-decoration: none;
+}
+
+.main-nav li a:hover {
+    background-color: #e0dbcf; /* 네비게이션 링크에 호버할 때 연한 베이지 */
+    color: #333;
+}
+
+.dropdown-content {
+    display: none; /* 기본적으로 드롭다운 메뉴는 숨김 */
+    position: absolute; /* 부모 요소에 대해 절대 위치 */
+    background-color: #ffffff; /* 하위 메뉴 배경 흰색 */
+    min-width: 150px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* 드롭다운에 그림자 추가 */
+    z-index: 20; /* 드롭다운 메뉴가 다른 요소 위에 표시되도록 설정 */
+    top: 100%; /* 부모 요소 바로 아래에 위치 */
+    left: 0;
+}
+
+.dropdown-content li {
+    display: block;
+}
+
+.dropdown-content li a {
+    padding: 10px;
+    color: #333;
+    text-decoration: none;
+}
+
+.dropdown-content li a:hover {
+    background-color: #ddd; /* 하위 메뉴 항목에 마우스를 올릴 때 배경색 */
+}
+
+/* 부모 요소인 dropdown을 hover할 때 하위 메뉴 표시 */
+.dropdown:hover .dropdown-content {
+    display: block; /* 부모 요소에 마우스를 올리면 드롭다운 메뉴가 나타남 */
+    z-index: 20; /* 드롭다운 메뉴가 상위에 위치하도록 추가 설정 */
+}
+.nav-left {
+    float: left;
+}
+
+.nav-right {
+    float: right;
+}
+
+.nav-right li {
+    margin-left: 20px; /* 오른쪽 항목 사이의 간격을 추가 */
+}
+/* 네비게이션 바 설정 */
+.main-nav {
+    background-color: #f4f0e6;
+    margin: 0;
+    padding: 0;
+    z-index: 10;
+    position: relative;
+}
+
+.main-nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+}
+
+.main-nav::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.main-nav li {
+    float: left;
+    position: relative;
+}
+
+.main-nav li a {
+    display: block;
+    padding: 14px 20px;
+    color: #333;
+    text-align: center;
+    text-decoration: none;
+}
+
+.main-nav li a:hover {
+    background-color: #e0dbcf;
+    color: #333;
+}
+
+/* 드롭다운 기본 스타일 */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #ffffff;
+    min-width: 150px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 20;
+    top: 100%;
+    left: 0;
+    padding: 0;
+    list-style: none;
+    text-align: center; /* 드롭다운 항목을 가운데 정렬 */
+}
+
+/* 드롭다운 항목 */
+.dropdown-content li {
+    display: block;
+    width: 100%;
+}
+
+/* 드롭다운 항목의 링크 */
+.dropdown-content li a {
+    display: block;
+    padding: 10px 0;
+    color: #333;
+    text-decoration: none;
+    text-align: center;
+}
+
+.dropdown-content li a:hover {
+    background-color: #ddd;
+}
+
+/* 부모 요소에 마우스를 올렸을 때 드롭다운 메뉴 표시 */
+.dropdown:hover .dropdown-content {
+    display: block;
+    z-index: 20;
+}
+
+.nav-left {
+    float: left;
+}
+
+.nav-right {
+    float: right;
+}
+
+.nav-right li {
+    margin-left: 20px;
+}
+.header-top {
+    display: flex;
+    justify-content: center; /* 수평 가운데 정렬 */
+    align-items: center; /* 수직 가운데 정렬 */
+    background-color: #ffffff; /* 헤더도 흰색으로 설정 */
+    padding: 20px;
+    border-bottom: 1px solid #ddd; /* 헤더 하단에 은은한 회색 테두리 */
+    position: relative;
+}
+
+.header-options {
+    position: absolute;
+    right: 20px; /* 오른쪽에 위치시키기 위한 조정 */
+}
+
+.header-options ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.header-options li {
+    display: inline;
+    margin-right: 15px;
+}
+ .footer {
+        font-family: 'Roboto', sans-serif; /* Roboto 폰트 적용 */
+        color: #333;
+    }
+    
+.image-section {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2열로 나누기 */
+    gap: 20px; /* 이미지들 사이의 간격 */
+    padding: 20px;
+    justify-items: center; /* 이미지를 가운데 정렬 */
+}
+
+.image-section img {
+    width: 100%; 
+    height: auto; /* 자동으로 높이를 설정 */
+    object-fit: contain; /* 이미지 비율을 유지하면서 잘리지 않게 설정 */
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+
+.image-section img:nth-child(1) {
+   height: 100px; /* 원하는 높이 설정 */
+}
+
+.image-section img:nth-child(2) {
+	 grid-column: span 2; /* 첫 번째 이미지는 2칸 차지 */
+    height: 300px; /* 두 번째 이미지는 작게 */
+}
+
+.image-section img:nth-child(3) {
+    height: 300px; /* 세 번째 이미지는 중간 크기로 */
+}
+ .image-section img:nth-child(4) {
+
+    height: 80px; 
+} 
+
+.image-section img:hover {
+    transform: scale(1.05); /* 마우스 오버 시 살짝 확대 */
+}
+/* 비디오 배경 설정 - 가로만 꽉 채우고, 세로는 자동 */
+.video-background {
+    position: relative; /* 다른 콘텐츠와의 관계 유지 */
+    width: 100%; /* 화면 가로를 꽉 채움 */
+    height: auto; /* 비율에 따라 세로는 자동 조정 */
+    object-fit: cover; /* 비율을 유지하면서 화면 가로를 채움 */
+    z-index: 1; /* 다른 콘텐츠와 겹치지 않도록 설정 */
+}
+
+/* 메인 콘텐츠와 헤더는 그대로 유지 */
+.main-content {
+    position: relative;
+    z-index: 2; /* 비디오보다 위에 표시되도록 */
+    padding: 20px;
+}
+
+.header-top {
+    position: relative;
+    z-index: 2;
+    background-color: #ffffff;
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+
+
+/* 네비게이션 아이템 배치 */
+.nav-left {
+    display: flex;
+    align-items: center;
+}
+
+.nav-right {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+/* 알림창 스타일 */
+.notification {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%); /* 가로 중앙 정렬 */
+    background-color: #f4f0e6;
+    padding: 5px 10px;
+    text-align: center;
+    font-size: 14px;
+    color: #333;
+    overflow: hidden;
+    height: 40px;
+    line-height: 40px;
+    white-space: nowrap;
+}
+
+.slider {
+    display: inline-block;
+    animation: slideUp 5s infinite;
+}
+
+@keyframes slideUp {
+    0% { transform: translateY(0); }
+    45% { transform: translateY(-40px); }
+    76% { transform: translateY(-80px); }
+    100% { transform: translateY(0); }
+}
+.slider p {
+    margin: 0;
+    padding: 0;
+    height: 40px; /* 슬라이드 높이와 동일하게 설정 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+

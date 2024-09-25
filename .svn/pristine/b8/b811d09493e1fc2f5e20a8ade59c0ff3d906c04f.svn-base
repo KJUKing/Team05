@@ -1,0 +1,67 @@
+package kr.or.ddit.member.controller;
+
+/**
+ * 로그아웃 처리를 담당하는 컨트롤러
+ * 
+ * 이 서블릿은 사용자의 로그아웃 요청을 처리합니다.
+ * - 세션을 무효화하여 로그아웃 처리
+ * - 로그아웃 후 로그인 페이지로 리다이렉트
+ */
+import java.io.IOException;
+import java.net.URLDecoder;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+@WebServlet("/member/logout.do")
+public class LogoutController extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// 현재 세션을 가져옵니다. 세션이 없으면 새로 생성하지 않습니다.
+		HttpSession session = request.getSession(false);
+		String userType = null;
+        if (session != null) {
+        	userType = (String) session.getAttribute("userType");
+			// 세션에 있는 모든 속성을 제거합니다.
+			session.invalidate();
+		}
+
+     // 사용자 타입에 따른 리다이렉트 처리
+        String returnUrl = request.getParameter("returnUrl");
+        if (returnUrl != null) {
+            try {
+                returnUrl = URLDecoder.decode(returnUrl, "UTF-8");
+            } catch (IllegalArgumentException e) {
+            	// 디코딩 중 오류가 발생하면 무시하고 원래 값 사용
+            }
+        }
+
+        System.out.println("User type: " + userType);
+        System.out.println("Return URL: " + returnUrl);
+
+        if ("admin".equals(userType)) {
+            // 관리자는 메인 페이지로 리다이렉트
+            response.sendRedirect(request.getContextPath() + "/main?view=index");
+        } else if (returnUrl != null && !returnUrl.isEmpty()) {
+            // JSP 파일 경로를 제거하고 컨텍스트 경로만 사용
+            String contextPath = request.getContextPath();
+            if (returnUrl.contains(contextPath)) {
+                returnUrl = returnUrl.substring(returnUrl.indexOf(contextPath));
+            }
+            response.sendRedirect(returnUrl);
+        } else {
+            // returnUrl이 없는 경우 기본적으로 메인 페이지로 리다이렉트
+            response.sendRedirect(request.getContextPath() + "/main?view=index");
+        }
+    }
+
+	// GET 요청도 POST로 처리합니다. (브라우저에서 직접 URL 입력 등의 경우 대비)
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		doPost(request, response);
+	}
+}

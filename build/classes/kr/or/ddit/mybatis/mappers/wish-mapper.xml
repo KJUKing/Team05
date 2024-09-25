@@ -29,4 +29,11 @@
 		WHERE mem_id = #{memId}
 		  AND prod_id = #{prodId}
 	</select>
+	
+	<select id="imageWish" resultType="wishVo" parameterType="String">
+		select *
+		  from wishlist
+		 where mem_id = #{mem_id}
+	</select>
+	
 </mapper>

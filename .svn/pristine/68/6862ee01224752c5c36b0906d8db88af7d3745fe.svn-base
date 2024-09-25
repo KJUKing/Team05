@@ -1,0 +1,225 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="kr.or.ddit.member.vo.MemberVO" %>
+<%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="java.util.Date" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>회원 상세 정보</title>
+    <style>
+    /* - 정석진 2024-09-23-  */
+    /* 전체 페이지 레이아웃 설정 */
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f0f0f0;
+    }
+
+    /* 메인 컨테이너 스타일 */
+    .container {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        width: 400px;
+    }
+
+    /* 제목 스타일 */
+    h2 {
+        text-align: center;
+        color: #333;
+    }
+
+    /* 테이블 기본 스타일 */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    /* 테이블 셀 스타일 */
+    th, td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+
+    /* 테이블 헤더 스타일 */
+    th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+    }
+
+    /* 버튼 컨테이너 스타일 */
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;  /* 상단 여백 추가 */
+    }
+
+    /* 공통 버튼 스타일 */
+        .btn {
+            padding: 10px 5px;A
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            color: white;
+            width: 18%;                    /* 버튼 너비를 좀 더 좁게 설정 */
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s;
+            white-space: nowrap;           /* 버튼 텍스트가 줄바꿈되지 않도록 설정 */
+            overflow: hidden;              /* 텍스트가 버튼을 벗어나지 않도록 설정 */
+            text-overflow: ellipsis;       /* 텍스트가 버튼을 벗어날 경우 ... 으로 표시 */
+        }
+
+         /* 수정 버튼 스타일 */
+        .btn-edit, .btn-update {
+            background-color: #4CAF50;        /* 초록색 배경 */       
+        }                                                        
+        .btn-edit:hover, .btn-update:hover {                     
+            background-color: #45a049;        /* 호버 시 더 진한 초록색 */
+        }                                                        
+                                                                 
+        /* 삭제 버튼 스타일 */                                   
+        .btn-delete {                                            
+            background-color: #f44336;        /* 빨간색 배경 */       
+        }                                                        
+        .btn-delete:hover {                                      
+            background-color: #da190b;        /* 호버 시 더 진한 빨간색 */
+        }                                                        
+                                                                 
+        /* 뒤로 버튼 스타일 */
+        .btn.btn-back {
+            background-color: skyblue;        /* 연파란색 배경 */   
+        }
+        .btn.btn-back:hover {
+            background-color: #0b7dda;        /* 호버 시 더 진한 파란색 */
+        }                                                        
+                                                                 
+        /* 로그아웃 버튼 스타일 */                               
+        .btn-logout {                                            
+            background-color: #555555;        /* 회색 배경 */        
+        }                                                        
+        .btn-logout:hover {                                      
+            background-color: #333333;        /* 호버 시 더 진한 회색 */ 
+        }
+
+    /* 에러 메시지 스타일 */
+    .error-message {
+        color: red;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+</style>
+    <script>
+    // 회원 삭제 확인 함수
+    function confirmDelete() {
+        if(confirm('정말로 회원을 삭제하시겠습니까?')) {
+            // 확인 시 숨겨진 삭제 폼 제출
+            document.getElementById('deleteForm').submit();
+        }
+    }
+    
+    // 로그아웃 함수
+    function logout() {
+        if(confirm('로그아웃 하시겠습니까?')) {
+            // 확인 시 로그아웃 처리 페이지로 이동
+            location.href = '<%=request.getContextPath()%>/member/logout.do';
+        }
+    }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2>회원 상세 정보</h2>
+        
+        <%
+            // 컨트롤러에서 전달받은 회원 정보를 가져옴
+            MemberVO memberDetail = (MemberVO) request.getAttribute("memberDetail");
+            
+            // 생년월일 포맷팅을 위한 SimpleDateFormat 객체 생성
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            
+        %>
+        
+        <!-- 회원 정보를 표시하는 테이블 -->
+        <table>
+            <tr>
+                <th>ID</th>
+                <td><%= memberDetail.getMemId() %></td>
+            </tr>
+            <tr>
+                <th>이름</th>
+                <td><%= memberDetail.getMemName() %></td>
+            </tr>
+            <tr>
+                <th>생년월일</th>
+                <td>
+                    <%
+                        Date memBirth = memberDetail.getMemBirth();
+                        // 생년월일이 null이 아닐 경우 포맷팅, 그렇지 않으면 "정보 없음" 표시
+                        out.print(memBirth != null ? sdf.format(memBirth) : "정보 없음");
+                    %>
+                </td>
+            </tr>
+            <tr>
+                <th>이메일</th>
+                <td><%= memberDetail.getMemEmail() %></td>
+            </tr>
+            <tr>
+                <th>전화번호</th>
+                <td><%= memberDetail.getMemPhone() %></td>
+            </tr>
+            <tr>
+                <th>주소</th>
+                <td><%= memberDetail.getMemAddress() %></td>
+            </tr>
+            <tr>
+                <th>상세주소</th>
+                <td><%= memberDetail.getMemDetailAddress() %></td>
+            </tr>
+            <tr>
+                <th>마일리지</th>
+                <td><%= memberDetail.getMemMileage() %></td>
+            </tr>
+            <tr>
+                <th>상태</th>
+                <td><%= memberDetail.getMemStatus() == 1 ? "활성" : "비활성" %></td>
+            </tr>
+        </table>
+        
+        <!-- 회원 삭제 실패 시 에러 메시지 표시 -->
+        <% if(request.getParameter("error") != null && request.getParameter("error").equals("deleteFailed")) { %>
+            <p class="error-message">회원 삭제에 실패했습니다.</p>
+        <% } %>
+        
+        <!-- 버튼 그룹 -->
+        <div class="button-container">
+            <!-- 수정 버튼: 회원 정보 수정 페이지로 이동 -->
+            <a href="<%=request.getContextPath()%>/member/editMember.do?memId=<%= memberDetail.getMemId() %>" class="btn btn-edit">수정</a>
+            
+            <!-- 삭제 버튼: 삭제 확인 함수 호출 -->
+            <button type="button" onclick="confirmDelete()" class="btn btn-delete">회원탈퇴</button>
+            
+            
+ 			<button type="button" class="btn btn-back" onclick="history.back()">뒤로가기</button>
+            
+            <!-- 로그아웃 버튼: 로그아웃 함수 호출 -->
+            <button type="button" onclick="logout()" class="btn btn-logout">로그아웃</button>
+        </div>
+        
+        <!-- 회원 삭제를 위한 숨겨진 폼 -->
+        <form id="deleteForm" action="<%=request.getContextPath()%>/member/deleteMember.do" method="post" style="display:none;">
+            <input type="hidden" name="memId" value="<%= memberDetail.getMemId() %>">
+        </form>
+    </div>
+</body>
+</html>

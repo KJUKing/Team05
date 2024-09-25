@@ -2,14 +2,65 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="coupon">
-	
-	<insert id="couponInsert">
-		insert into detail_coupon(coup_cdate,coup_edate,coup_amount,coup_status,coup_name)
-		values(sysdate,#{coup_edate},#{coup_amount},'1',#{coup_name})
+
+	<insert id="coupInsert" parameterType="String">
+		INSERT INTO coupon
+		(coup_id, mem_id)
+		VALUES ('coup' || TO_CHAR(COUPON_SEQ.NEXTVAL,
+		'FM0000'), #{mem_id})
 	</insert>
-	
+
+
+	<insert id="couponInsert" parameterType="coupVo">
+		INSERT INTO
+		detail_coupon (coup_id, coup_cdate, coup_edate, coup_amount,
+		coup_status, coup_name)
+		VALUES ('coup' || TO_CHAR(COUPON_SEQ.CURRVAL,
+		'FM0000'), sysdate, #{coup_edate}, #{coup_amount}, '1', #{coup_name})
+	</insert>
+
 	<select id="couponList" resultType="coupVo">
-		select * from detail_coupon
+		select * from detail_coupon A, coupon B where a.coup_id = b.coup_id
+	</select>
+
+	<select id="memId" resultType="coupVo">
+		select * from member
 	</select>
 	
+	<!-- member 테이블 전체 회원에게 쿠폰을 지급하는 쿼리 -->
+	<insert id="batchCoupInsertAll">
+		INSERT INTO coupon (coup_id, mem_id)
+		SELECT 'coup' || TO_CHAR(COUPON_SEQ.NEXTVAL, 'FM0000'), mem_id
+		FROM member
+	</insert>
+
+	<!-- 쿠폰 상세정보 추가 -->
+	<insert id="batchCouponInsertAll" parameterType="CoupVO">
+	    MERGE INTO detail_coupon dc
+	    USING (
+	        SELECT c.coup_id, sysdate AS coup_cdate, #{coup_edate} AS coup_edate, #{coup_amount} AS coup_amount, '1' AS coup_status, #{coup_name} AS coup_name
+	        FROM coupon c
+	        WHERE c.coup_id IN (SELECT coup_id FROM coupon WHERE mem_id IN (SELECT mem_id FROM member))
+	    ) src
+	    ON (dc.coup_id = src.coup_id)
+	    WHEN NOT MATCHED THEN
+	        INSERT (coup_id, coup_cdate, coup_edate, coup_amount, coup_status, coup_name)
+	        VALUES (src.coup_id, src.coup_cdate, src.coup_edate, src.coup_amount, src.coup_status, src.coup_name)
+	</insert>
+	
+	<select id="mileCoupon" resultType="coupVo" parameterType="String">
+		select a.mem_mileage,
+		       c.coup_name
+		 from member A, coupon B, detail_coupon C
+		 where a.mem_id = b.mem_id
+		   and b.coup_id = c.coup_id
+		   and a.mem_id = #{mem_id}
+		   and c.coup_status = '1'
+	</select>
+
+	<delete id="deleteCoupon" parameterType="String">
+		delete from coupon where coup_id = #{coup_id}
+	</delete>
+
+
 </mapper>

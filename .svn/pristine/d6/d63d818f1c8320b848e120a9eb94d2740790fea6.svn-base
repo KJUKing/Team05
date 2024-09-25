@@ -1,0 +1,110 @@
+package kr.or.ddit.member.dao;
+
+/**
+ * 회원 정보에 대한 데이터베이스 접근 객체(DAO)
+ * 
+ * 이 클래스는 회원 정보와 관련된 모든 데이터베이스 작업을 처리합니다.
+ * - 회원 정보 조회, 추가, 수정, 삭제
+ * - 아이디 찾기, 비밀번호 재설정을 위한 사용자 확인
+ * - 관리자 정보 조회
+ * - 정석진 2024-09-23- 
+ */
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.ibatis.session.SqlSession;
+
+import kr.or.ddit.util.MybatisUtil;
+import kr.or.ddit.member.vo.MemberVO;
+import kr.or.ddit.member.vo.AdminVO;
+
+public class MemberDao {
+	// ID로 회원 정보를 조회하는 메소드
+	public MemberVO getMemberById(String memId) {
+		try (SqlSession sqlSession = MybatisUtil.getSqlSession()) {
+			return sqlSession.selectOne("Member.getMemberById", memId);
+		}
+	}
+
+	// 새로운 회원을 데이터베이스에 추가하는 메소드
+	public int insertMember(MemberVO member) {
+		try (SqlSession sqlSession = MybatisUtil.getSqlSession()) {
+			int result = sqlSession.insert("Member.insertMember", member);
+			sqlSession.commit();
+			return result;
+		}
+	}
+
+	// 모든 회원 정보를 조회하는 메소드
+	public List<MemberVO> getAllMembers() {
+		try (SqlSession sqlSession = MybatisUtil.getSqlSession()) {
+			return sqlSession.selectList("Member.getAllMembers");
+		}
+	}
+
+	// 회원 정보를 수정하는 메소드
+	public int updateMember(MemberVO member) {
+		try (SqlSession sqlSession = MybatisUtil.getSqlSession()) {
+			int result = sqlSession.update("Member.updateMember", member);
+			sqlSession.commit();
+			return result;
+		}
+	}
+
+	// 회원을 삭제하는 메소드 (실제로는 MEM_DELYN 플래그를 'Y'로 설정)
+	public int deleteMember(String memId) {
+		try (SqlSession sqlSession = MybatisUtil.getSqlSession()) {
+			int result = sqlSession.update("Member.deleteMember", memId);
+			sqlSession.commit();
+			return result;
+		}
+	}
+
+	// 이름, 생년월일, 전화번호로 아이디를 찾는 메소드
+	public String findIdByNameBirthdatePhone(String name, String birthdate, String phone) {
+		try (SqlSession sqlSession = MybatisUtil.getSqlSession()) {
+			MemberVO params = new MemberVO();
+			params.setMemName(name);
+			// birthdate를 Date 객체로 변환
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			try {
+				Date birth = sdf.parse(birthdate);
+				params.setMemBirth(birth);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return null;
+			}
+			params.setMemPhone(phone);
+			return sqlSession.selectOne("Member.findIdByNameBirthdatePhone", params);
+		}
+	}
+
+	// 아이디와 이메일로 유효한 사용자인지 확인하는 메소드
+	public boolean isValidUserForPasswordReset(String id, String email) {
+		try (SqlSession sqlSession = MybatisUtil.getSqlSession()) {
+			MemberVO params = new MemberVO();
+			params.setMemId(id);
+			params.setMemEmail(email);
+			Integer count = sqlSession.selectOne("Member.isValidUserForPasswordReset", params);
+			return count != null && count > 0;
+		}
+	}
+	// 이메일로 회원 정보를 조회하는 메소드
+	// @param email 조회할 회원의 이메일
+	// @return 조회된 회원 정보, 없으면 null
+	public MemberVO getMemberByEmail(String email) {
+		try (SqlSession sqlSession = MybatisUtil.getSqlSession()) {
+			return sqlSession.selectOne("Member.getMemberByEmail", email);
+		}
+	}
+
+	// 관리자 ID로 관리자 정보를 조회하는 메소드
+	public AdminVO getAdminById(String adminId) {
+		try (SqlSession sqlSession = MybatisUtil.getSqlSession()) {
+			AdminVO admin = sqlSession.selectOne("Admin.getAdminById", adminId);
+			System.out.println("AdminVO from database: " + admin); // 디버깅용 로그 추가
+			return admin;
+		}
+	}
+}

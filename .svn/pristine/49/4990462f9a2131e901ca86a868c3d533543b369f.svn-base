@@ -1,0 +1,551 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>로그인</title>
+<style>
+/* - 정석진 2024-09-23-  */
+/* 전체 페이지 스타일 */
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'%3E%3Cdefs%3E%3Cpattern id='fabric' x='0' y='0' width='80' height='80' patternUnits='userSpaceOnUse'%3E%3Cpath d='M0 0h80v80H0z' fill='%23e6e2d3'/%3E%3Cpath d='M0 0v80h80V0H0zm40 80V0m-20 0v80m60-80v80m-80-40h80' stroke='%23d4cfc0' stroke-width='1'/%3E%3Cpath d='M0 0l80 80M80 0L0 80' stroke='%23d4cfc0' stroke-width='0.5'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23fabric)'/%3E%3Cg opacity='0.7'%3E%3Cpath d='M0 150 Q 400 50, 800 150' fill='none' stroke='%23c9b8a8' stroke-width='100'/%3E%3Cpath d='M0 450 Q 400 350, 800 450' fill='none' stroke='%23b0a090' stroke-width='100'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+/* 로그인 컨테이너 스타일 */
+.container {
+    background-color: rgba(230, 226, 211, 0.8);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    width: 350px;
+    backdrop-filter: blur(5px);
+}
+
+/* 제목 스타일 */
+h2 {
+    text-align: center;
+    color: #4a4a4a;
+    margin-bottom: 1.5rem;
+    font-weight: 300;
+}
+
+/* 탭 컨테이너 스타일 */
+.tab-container {
+    display: flex;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* 개별 탭 스타일 */
+.tab {
+    flex: 1;
+    text-align: center;
+    padding: 0.75rem 0.5rem;
+    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.5);
+    transition: all 0.3s ease;
+    font-size: 0.9em;
+    border: 1px solid #d4cfc0;
+}
+
+.tab.active {
+    background-color: #7a6f5d;
+    color: white;
+    border-color: #7a6f5d;
+}
+
+/* 폼 스타일 */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+/* 폼 그룹 스타일 */
+.form-group {
+    margin-bottom: 1.2rem;
+}
+
+/* 라벨 스타일 */
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #666;
+    font-size: 0.9em;
+}
+
+/* 입력 필드 스타일 */
+input[type="text"], 
+input[type="password"], 
+input[type="email"], 
+input[type="tel"], 
+input[type="date"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d4cfc0;
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.8);
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+}
+
+input[type="text"]:focus, 
+input[type="password"]:focus, 
+input[type="email"]:focus, 
+input[type="tel"]:focus, 
+input[type="date"]:focus {
+    border-color: #7a6f5d;
+    outline: none;
+}
+
+/* 로그인 타입 선택 스타일 */
+.login-type {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.login-type label {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.login-type input[type="radio"] {
+    margin-right: 5px;
+}
+
+/* 아이디 저장 체크박스 컨테이너 스타일 */
+.save-id-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.save-id-container input[type="checkbox"] {
+    margin-right: 0.5rem;
+}
+
+/* 버튼 스타일 */
+input[type="submit"], .button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #7a6f5d;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+input[type="submit"]:hover, .button:hover {
+    background-color: #5f5648;
+}
+
+/* 회원가입 링크 스타일 */
+.register-link {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.register-link a {
+    color: #7a6f5d;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.register-link a:hover {
+    color: #5f5648;
+    text-decoration: underline;
+}
+
+/* 에러 메시지 스타일 */
+.error-message {
+    color: #d32f2f;
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: 0.9em;
+}
+
+/* 결과 박스 스타일 */
+#result-box {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid #d4cfc0;
+    border-radius: 6px;
+    font-size: 0.9em;
+}
+
+/* 폼 컨테이너 기본 스타일 (숨김) */
+.form-container {
+    display: none;
+}
+
+/* 활성화된 폼 컨테이너 스타일 */
+.form-container.active {
+    display: block;
+}
+
+/* 결과 박스 스타일 */
+#result-box {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background-color: #f0f0f0;
+    border: 1px solid #d4cfc0;
+    border-radius: 6px;
+    font-size: 0.9em;
+}
+
+/* 아이디 저장 체크박스 컨테이너 스타일 */
+.save-id-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.save-id-container input[type="checkbox"] {
+    margin-right: 0.5rem;
+}
+
+.save-id-container label {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 0;
+}
+
+/* 로그인 타입 선택 스타일 */
+.login-type {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.login-type label {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.login-type input[type="radio"] {
+    margin-right: 5px;
+}
+
+.login-type label span {
+    font-size: 0.9em;
+}
+</style>
+</head>
+<body>
+	<div class="container">
+		<h2>로그인</h2>
+		<!-- 탭 메뉴 -->
+		<div class="tab-container">
+            <div class="tab active" onclick="showTab('login')">로그인</div>
+            <div class="tab" onclick="showTab('find-id')"><span>아이디</span><span>찾기</span></div>
+            <div class="tab" onclick="showTab('find-pw')"><span>비밀번호</span><span>찾기</span></div>
+        </div>
+
+		<!-- 로그인 폼 -->
+		<div id="login-form" class="form-container active">
+			<!-- 에러 메시지 표시 -->
+			<%
+				if (request.getAttribute("error") != null) {
+			%>
+			<div class="error-message">
+				<%=request.getAttribute("error")%>
+			</div>
+			<%
+				}
+			%>
+			<form action="<%=request.getContextPath()%>/member/login.do" method="post">
+				<div class="login-type">
+					<label> 
+					        <input type="radio" name="userType" value="normal" checked> 
+					        <span>일반 회원</span>
+					</label> 
+					<label> 
+					        <input type="radio" name="userType" value="admin">
+						    <span>관리자</span>
+					</label>
+				</div>
+				<div class="form-group">
+					<label for="memId">아이디:</label> 
+					<input type="text" id="memId" name="memId" required>
+				</div>
+				<div class="form-group">
+					<label for="memPass">비밀번호:</label> 
+					<input type="password" id="memPass" name="memPass" required>
+				</div>
+				<div class="save-id-container">
+					<input type="checkbox" id="saveId" name="saveId"> 
+					<label for="saveId">아이디 저장</label>
+				</div>
+				     <input type="hidden" name="prevPage" value="${param.prevPage != null ? param.prevPage : header['referer']}">
+                <div class="form-group">
+					<input type="submit" value="로그인">
+				</div>
+			</form>
+			<!-- 회원가입 링크 -->
+			<div class="register-link">
+				<a href="<%=request.getContextPath()%>/member/register.do">회원가입</a>
+			</div>
+		</div>
+
+		<!-- 아이디 찾기 폼 -->
+		<div id="find-id-form" class="form-container">
+			<form onsubmit="return findId()">
+				<div class="form-group">
+					<label for="name">이름:</label> <input type="text" id="name" name="name" required>
+				</div>
+				<div class="form-group">
+					<label for="birthdate">생년월일:</label> <input type="date" id="birthdate" name="birthdate" required>
+				</div>
+				<div class="form-group">
+					<label for="phone">전화번호:</label> <input type="tel" id="phone" name="phone" required>
+				</div>
+				<div class="form-group">
+					<input type="submit" value="아이디 찾기">
+				</div>
+			</form>
+		</div>
+
+		<!-- 비밀번호 찾기 폼 -->
+		<div id="find-pw-form" class="form-container">
+			<form onsubmit="return findPassword()">
+				<div class="form-group">
+					<label for="id-for-pw">아이디:</label> <input type="text" id="id-for-pw" name="id-for-pw" required>
+				</div>
+				<div class="form-group">
+					<label for="email">이메일:</label> <input type="email" id="email" name="email" required>
+				</div>
+				<div class="form-group">
+					<input type="submit" value="비밀번호 찾기">
+				</div>
+			</form>
+		</div>
+
+		<!-- 결과 표시 박스 -->
+		<div id="result-box" style="display: none;"></div>
+	</div>
+
+	<script>
+   // 페이지 로드 시 실행되는 함수
+   // 아이디 저장 기능 추가
+   window.onload = function() {
+       var savedId = getCookie("savedId");
+       if (savedId) {
+           document.getElementById("memId").value = savedId;
+           document.getElementById("saveId").checked = true;
+       }
+   }
+   // 로그인 폼 제출 시 실행되는 함수
+   document.querySelector("form").onsubmit = function() {
+       var memId = document.getElementById("memId").value;
+       var saveId = document.getElementById("saveId").checked;
+       if (saveId) {
+           setCookie("savedId", memId, 7); // 7일 동안 쿠키 저장
+       } else {
+           deleteCookie("savedId");
+       }
+   }
+   // 쿠키 설정 함수
+   function setCookie(name, value, days) {
+       var expires = "";
+       if (days) {
+           var date = new Date();
+           date.setTime(date.getTime() + (days*24*60*60*1000));
+           expires = "; expires=" + date.toUTCString();
+       }
+       document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+   }
+   // 쿠키 가져오기 함수
+   function getCookie(name) {
+       var nameEQ = name + "=";
+       var ca = document.cookie.split(';');
+       for(var i=0;i < ca.length;i++) {
+           var c = ca[i];
+           while (c.charAt(0)==' ') c = c.substring(1,c.length);
+           if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+       }
+       return null;
+   }
+   // 쿠키 삭제 함수
+   function deleteCookie(name) {   
+       document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+   }
+   
+   // 관리자 로그인 기능
+   document.querySelector("form").onsubmit = function(e) {
+       var memId = document.getElementById("memId").value;
+       var userType = document.querySelector('input[name="userType"]:checked').value;
+       var saveId = document.getElementById("saveId").checked;
+       
+       // 관리자 로그인 체크
+       if (userType === "admin" && memId !== "admin") {
+           e.preventDefault(); // 폼 제출 방지
+           alert("관리자 로그인은 admin 계정만 가능합니다.");
+           return false;
+       }
+       // 일반 회원 로그인 체크
+       if (userType === "normal" && memId === "admin") {
+           e.preventDefault(); // 폼 제출 방지
+           alert("admin 계정은 관리자 로그인으로만 접근 가능합니다.");
+           return false;
+       }
+       // 아이디 저장 기능
+       if (saveId) {
+           setCookie("savedId", memId, 7); // 7일 동안 쿠키 저장
+       } else {
+           deleteCookie("savedId");
+       }
+   }
+   
+   // 탭 전환 함수
+   function showTab(tabName) {
+        // 모든 탭과 폼 컨테이너를 비활성화
+        document.querySelectorAll('.tab').forEach(function(tab) {
+            tab.classList.remove('active');
+        });
+        document.querySelectorAll('.form-container').forEach(function(form) {
+            form.classList.remove('active');
+        });
+        
+        // 선택된 탭과 해당 폼 컨테이너를 활성화
+        document.querySelector('.tab:nth-child(' + (tabName === 'login' ? 1 : (tabName === 'find-id' ? 2 : 3)) + ')').classList.add('active');
+        document.getElementById(tabName + '-form').classList.add('active');
+
+        // 모든 입력 필드 초기화
+        document.querySelectorAll('input[type="text"], input[type="password"], input[type="date"], input[type="tel"], input[type="email"]').forEach(function(input) {
+            input.value = '';
+        });
+
+        // 결과 박스 숨기기
+        document.getElementById('result-box').style.display = 'none';
+        
+        // 에러 메시지 초기화
+        document.querySelector('.error-message')?.remove();
+   }
+
+   // 아이디 찾기 함수
+   function findId() {
+       // 사용자 입력 값 가져오기
+       var name = document.getElementById('name').value;
+       var birthdate = document.getElementById('birthdate').value;
+       var phone = document.getElementById('phone').value;
+       
+       // AJAX 요청 객체 생성
+       var xhr = new XMLHttpRequest();
+       // POST 방식으로 요청 설정
+       xhr.open('POST', '<%=request.getContextPath()%>/member/accountRecovery.do', true);
+       // 요청 헤더 설정
+       xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+       
+       // 요청 완료 시 실행될 콜백 함수
+       xhr.onload = function() {
+           var resultBox = document.getElementById('result-box');
+           resultBox.style.display = 'block'; // 결과 박스 표시
+           if (xhr.status === 200) {
+               // 성공 시 서버 응답을 결과 박스에 표시
+               resultBox.innerHTML = xhr.responseText;
+           } else {
+               // 오류 발생 시 에러 메시지 표시
+               resultBox.innerHTML = '오류가 발생했습니다. 다시 시도해주세요.';
+               console.error('Request failed. Status:', xhr.status);
+           }
+       };
+       
+       // 네트워크 오류 발생 시 실행될 콜백 함수
+       xhr.onerror = function() {
+           var resultBox = document.getElementById('result-box');
+           resultBox.style.display = 'block';
+           resultBox.innerHTML = '오류가 발생했습니다. 다시 시도해주세요.';
+           console.error('Request failed. Network error');
+       };
+       
+       // 요청 파라미터 설정 및 전송
+       xhr.send('action=findId&name=' + encodeURIComponent(name) + '&birthdate=' + encodeURIComponent(birthdate) + '&phone=' + encodeURIComponent(phone));
+       
+       return false; // 폼 제출 방지
+   }
+
+   // 비밀번호 찾기 함수
+   function findPassword() {
+       console.log("findPassword 함수 호출");
+       // 사용자 입력 값 가져오기
+       var id = document.getElementById('id-for-pw').value;
+       var email = document.getElementById('email').value;
+       
+       console.log("ID:", id, "Email:", email);  // 디버깅용 로그
+       
+       // 이메일 유효성 검사
+       if (!validateEmail(email)) {
+           alert("올바른 이메일 형식이 아닙니다.");
+           return false;
+       }
+       
+       // AJAX 요청 객체 생성
+       var xhr = new XMLHttpRequest();
+       // POST 방식으로 요청 설정
+       xhr.open('POST', '<%=request.getContextPath()%>/member/accountRecovery.do', true);
+       // 요청 헤더 설정
+       xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+       
+       // 요청 완료 시 실행될 콜백 함수
+       xhr.onload = function() {
+           console.log("AJAX 응답 받음:", xhr.responseText);
+           var resultBox = document.getElementById('result-box');
+           resultBox.style.display = 'block'; // 결과 박스 표시
+           if (xhr.status === 200) {
+               // 성공 시 서버 응답을 결과 박스에 표시
+               resultBox.innerHTML = xhr.responseText;
+           } else {
+               // 오류 발생 시 에러 메시지 표시
+               resultBox.innerHTML = '오류가 발생했습니다. 다시 시도해주세요.';
+               console.error('Request failed. Status:', xhr.status);
+           }
+       };
+       
+       // 네트워크 오류 발생 시 실행될 콜백 함수
+       xhr.onerror = function() {
+           console.error('Request failed. Network error');
+           var resultBox = document.getElementById('result-box');
+           resultBox.style.display = 'block';
+           resultBox.innerHTML = '오류가 발생했습니다. 다시 시도해주세요.';
+       };
+       
+       // 요청 파라미터 설정
+       var params = 'action=findPassword&id=' + encodeURIComponent(id) + '&email=' + encodeURIComponent(email);
+       console.log("Sending params:", params);  // 디버깅용 로그
+       
+       // 요청 전송
+       xhr.send(params);
+       
+       return false; // 폼 제출 방지
+   }
+
+   // 이메일 유효성 검사 함수
+   function validateEmail(email) {
+       var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+       return re.test(String(email).toLowerCase());
+   }
+
+   // 전화번호 포맷팅 이벤트 리스너
+   document.getElementById('phone').addEventListener('input', function (e) {
+       var x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,4})(\d{0,4})/);
+       e.target.value = !x[2] ? x[1] : x[1] + '-' + x[2] + (x[3] ? '-' + x[3] : '');
+   });
+   </script>
+</body>
+</html>

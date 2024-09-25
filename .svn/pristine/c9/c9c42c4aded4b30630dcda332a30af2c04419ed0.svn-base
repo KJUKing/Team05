@@ -1,0 +1,159 @@
+package kr.or.ddit;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+@WebServlet("/main")
+public class FrontController extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String viewName = request.getParameter("view");
+        String page = "/index.jsp"; // 기본 페이지     
+
+        if (viewName != null) {
+            switch (viewName) {
+                case "index":
+                    page = "/index.jsp";
+                    break;
+                case "myPage":
+                    page = "/WEB-INF/views/member/myPage.jsp";
+                    break;
+                case "prodList":
+                    page = "/WEB-INF/views/prod/prodList.jsp";
+                    break;
+                case "wishList":
+                	page = "/WEB-INF/views/wish/wishList.jsp";
+                    break;
+                case "login":
+                    page = "/WEB-INF/views/member/Login.jsp";
+                    break;
+                case "noticeList":
+                    page = "/WEB-INF/views/notice/noticeList.jsp";
+                    break;
+                case "notiDetail":
+                    page = "/WEB-INF/views/notice/noticeDetail.jsp";
+                    break;
+                case "insertNotice":
+                    page = "/WEB-INF/views/notice/insertNotice.jsp";
+                    break;
+                case "updateNotice":
+                    page = "/WEB-INF/views/notice/updateNotice.jsp";
+                    break;
+                case "review":
+                    page = "/WEB-INF/views/review/reviewMain.jsp";
+                    break;
+                case "report":
+                    page = "/WEB-INF/views/report/adminReportView.jsp";
+                    break;
+                case "paymentList":
+                    page = "/WEB-INF/views/payment/paymentList.jsp";
+                    break;
+                case "prodListView":
+                    page = "/WEB-INF/views/prod/prodListView.jsp";
+                    break;
+                case "myreview":
+                    page = "/WEB-INF/views/review/reviewView.jsp";
+                    break;
+                case "myCoupon":
+                    page = "/WEB-INF/views/coupon/mileCoupon.jsp";
+                    break;
+                case "myOrder":
+                    page = "/WEB-INF/views/riturn/myBuyPage.jsp";
+                    break;
+                case "return":
+                    page = "/WEB-INF/views/riturn/riturnView.jsp";
+                    break;
+                case "prodAccList":
+                    page = "/WEB-INF/views/prod/prodAccList.jsp";
+                    break;
+                case "prodBestList":
+                	page = "/WEB-INF/views/prod/prodBestList.jsp";
+                	break;
+                case "prodBottomList":
+                	page = "/WEB-INF/views/prod/prodBottomList.jsp";
+                	break;
+                case "prodNewArrList":
+                	page = "/WEB-INF/views/prod/prodNewArrList.jsp";
+                	break;
+                case "prodOuterList":
+                	page = "/WEB-INF/views/prod/prodOuterList.jsp";
+                	break;
+                case "prodTopList":
+                	page = "/WEB-INF/views/prod/prodTopList.jsp";
+                	break;
+                case "reviewView":
+                    page = "/WEB-INF/views/review/reviewDetail.jsp";
+                    break;
+                case "reviewUpdate":
+                    page = "/WEB-INF/views/review/reviewUpdateForm.jsp";
+                    break;
+                case "admin":
+                    page = "/WEB-INF/views/admin/dashboard.jsp";
+                    break;  
+                case "adminMemList":
+                    page = "/WEB-INF/views/member/memberList.jsp";
+                    break;
+                 case "adminCoupon":
+                    page = "/WEB-INF/views/coupon/couponView.jsp";
+                    break;
+                 case "cartList":
+                     page = "/WEB-INF/views/cart/cartList.jsp";
+                     break;
+                 case "adminExpress":
+                     page = "/WEB-INF/views/express/expressList.jsp";
+                     break;
+                  case "adminReturn":
+                     page = "/WEB-INF/views/riturn/riturnList.jsp";
+                     break;
+                  case "reviewInsert":
+                     page = "/WEB-INF/views/review/reviewInsertForm.jsp";
+                     break;  
+                  case "adminCard":
+                      page = "/WEB-INF/views/card/cardList.jsp";
+                      break;
+                  case "adminExpressUpdate":
+                      page = "/WEB-INF/views/express/expressUpdateForm.jsp";
+                      break;
+                  case "adminExpressView":
+                      page = "/WEB-INF/views/express/expressView.jsp";
+                      break;
+                  case "adminExpressInsert":
+                      page = "/WEB-INF/views/express/expressForm.jsp";
+                      break;
+                  case "adminCouponInsert":
+                      page = "/WEB-INF/views/coupon/couponForm.jsp";
+                      break;
+                  case "adminCardInsert":
+                      page = "/WEB-INF/views/card/cardForm.jsp";
+                      break;
+                  case "adminCardView":
+                      page = "/WEB-INF/views/card/cardView.jsp"
+                      ;
+                      break;
+                  case "qnaMain":
+                	  page = "/WEB-INF/views/qna/qnaMain.jsp";
+                	  break;
+                  case "adminProdInsert":
+                	  page = "/WEB-INF/views/prod/prodForm.jsp";
+                	  break;
+                  case "adminProdUpdate":
+                	  page = "/WEB-INF/views/prod/prodUpdateForm.jsp";
+                	  break;
+               
+                // 필요한 페이지를 더 추가하면 됩니다.
+            }
+        }
+
+        // 메인 레이아웃에 페이지 전달
+        request.setAttribute("contentPage", page);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/mainLayout.jsp");
+        dispatcher.forward(request, response);
+    }
+}

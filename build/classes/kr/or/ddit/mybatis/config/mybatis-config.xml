@@ -12,7 +12,7 @@
 		<setting name="jdbcTypeForNull" value="NULL"/>
 		
 		<!-- MyBatis에 log4j 적용하기 -->
-		<setting name="logImpl" value="LOG4J"/>
+		  <!--  <setting name="logImpl" value="LOG4J"/>  -->
 	</settings>
 	
 	<!-- 사용할 VO객체의 별칭 설정하기  -->
@@ -26,6 +26,7 @@
 	-->
 	<typeAliases>
 		<!-- 여기에 VO클래스 지정하기 -->
+		<typeAlias type="kr.or.ddit.member.vo.AdminVO" alias="AdminVO"/>
 		<typeAlias type="kr.or.ddit.card.vo.CardVO" alias="cardVo"/>
 		<typeAlias type="kr.or.ddit.prod.vo.DeCateVO" alias="decateVo"/>
 		<typeAlias type="kr.or.ddit.express.vo.ExpressVO" alias="exVo"/>
@@ -46,6 +47,7 @@
 		<typeAlias type="kr.or.ddit.likes.vo.LikesVO" alias="likesVo"/>
 		<typeAlias type="kr.or.ddit.cart.vo.CartVO" alias="cartVo"/>
 		<typeAlias type="kr.or.ddit.coupon.vo.CouponVO" alias="coupVo"/>
+		<typeAlias type="kr.or.ddit.cart.vo.CartVO" alias="cartVo"/>
 	</typeAliases>
 	
 	 
@@ -58,6 +60,8 @@
 				<property name="url" value="${url}"/>
 				<property name="username" value="${user}"/>
 				<property name="password" value="${pass}"/>
+				<property name="poolMaximumActiveConnections" value="2"/><!-- 활성화된 최대 커넥션 수 -->
+            	<property name="poolMaximumIdleConnections" value="2"/><!-- 유휴상태에서 최대 커넥션 수 -->
 			</dataSource>
 		</environment>
 		
@@ -71,6 +75,7 @@
 	</mappers>	
 	--> 
 	<mappers>
+	   <mapper resource="kr/or/ddit/mybatis/mappers/admin-mapper.xml"/>
 		<mapper resource="kr/or/ddit/mybatis/mappers/card-mapper.xml"/>
 		<mapper resource="kr/or/ddit/mybatis/mappers/deCate-mapper.xml"/>
 		<mapper resource="kr/or/ddit/mybatis/mappers/express-mapper.xml"/>

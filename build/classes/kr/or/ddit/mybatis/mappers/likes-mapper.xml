@@ -24,4 +24,10 @@
 		WHERE mem_id = #{memId}
 		  AND prod_id = #{prodId}
 	</select>
+	
+	<select id="likesCount" resultType="int" parameterType="String">
+		select count(*)
+		  from likes
+		  where prod_id = #{prodId}
+	</select>
 </mapper>

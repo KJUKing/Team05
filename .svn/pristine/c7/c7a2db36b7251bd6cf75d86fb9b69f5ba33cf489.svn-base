@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cart">
+
+    <resultMap id="cartResultMap" type="cartVo">
+        <result property="cartId" column="CART_ID"/>
+        <result property="memId" column="MEM_ID"/>
+        <result property="cartPrice" column="CART_PRICE"/>
+        <result property="optionId" column="OPTION_ID"/>
+        <result property="prodId" column="PROD_ID"/>
+        <result property="dcartQty" column="DCART_QTY"/>
+        <result property="prodName" column="PROD_NAME"/>
+        <result property="prodPrice" column="PROD_PRICE"/>
+        <result property="optionName" column="OPTION_NAME"/>
+    </resultMap>
+
+    <!-- 처음 cartTable 데이터 삽입 -->
+	<insert id="insertCart" parameterType="map">
+		INSERT INTO CART (CART_ID, MEM_ID, CART_PRICE, CART_STATUS, CART_DATE)
+		VALUES (#{cartId}, #{memId}, 0, #{action}, SYSDATE)
+	</insert>
+
+	<!-- detail_cart 테이블에 데이터 삽입 -->
+    <insert id="insertDetailCart" parameterType="map">
+        INSERT INTO DETAIL_CART (CART_ID, OPTION_ID, PROD_ID, DCART_QTY)
+        VALUES (#{cartId}, #{optionId}, #{prodId}, #{quantity})
+    </insert>
+
+    <!-- detail_cart 테이블에서 총 금액 계산 -->
+    <select id="calculateTotalPrice" resultType="double">
+        SELECT SUM(A.PROD_PRICE * B.DCART_QTY) AS totalPrice
+        FROM PROD A
+                 JOIN DETAIL_CART B ON A.PROD_ID = B.PROD_ID
+        WHERE B.CART_ID = #{cartId}
+    </select>
+
+    <!-- cart 테이블의 총 금액 업데이트 -->
+    <update id="updateCartTotalPrice" parameterType="map">
+        UPDATE CART
+        SET CART_PRICE = #{totalPrice}
+        WHERE CART_ID = #{cartId}
+    </update>
+
+    <!-- cart 테이블의 status 업데이트 -->
+    <update id="updateCartStatus" parameterType="map">
+        UPDATE CART
+        SET CART_STATUS = #{cartStatus}
+        WHERE CART_ID = #{cartId}
+    </update>
+
+    <!-- 가장 최근의 pending 상태인 cart를 가져오는 쿼리 -->
+	<select id="getRecentPendingCart" parameterType="string" resultType="string">
+		SELECT CART_ID
+		FROM (
+				 SELECT CART_ID
+				 FROM CART
+				 WHERE MEM_ID = #{memId}
+				   AND CART_STATUS = 'PENDING'
+				 ORDER BY CART_DATE DESC
+			 )
+		WHERE ROWNUM = 1
+	</select>
+
+    <!-- PENDING 상태의 장바구니 조회 -->
+    <select id="getPendingCartByMemId" parameterType="string" resultType="string">
+        SELECT DISTINCT CART_ID
+        FROM CART
+        WHERE MEM_ID = #{memId}
+          AND CART_STATUS = 'PENDING'
+          AND ROWNUM = 1
+    </select>
+
+    <!-- PENDING 상태의 장바구니 삭제 -->
+    <delete id="deletePendingCart" parameterType="string">
+        DELETE FROM cart
+        WHERE mem_id = #{memId}
+          AND cart_status = 'PENDING'
+    </delete>
+    <!-- CART상태의(장바구니) cartId가 있는지 조회-->
+    <select id="getCartIdByMemId" parameterType="map" resultType="string">
+        SELECT cart_id
+        FROM cart
+        WHERE mem_id = #{memId}
+          AND cart_status = #{cart}
+          AND ROWNUM = 1
+    </select>
+
+    <!-- 장바구니 목록을 memId로 조회 -->
+    <!-- cart와 detail_cart를 조인해서 memId와 cart_status = 'CART'인 항목을 가져오는 쿼리 -->
+    <select id="getCartListByMemId" parameterType="string" resultMap="cartResultMap">
+        SELECT
+        c.cart_id,
+        c.mem_id,
+        c.cart_price,
+        dc.option_id,
+        dc.prod_id,
+        dc.dcart_qty,
+        p.prod_name,   <!-- PROD 테이블에서 prod_name 가져오기 -->
+        p.prod_price,  <!-- PROD 테이블에서 prod_price 가져오기 -->
+        ot.option_name <!-- OPTION_TABLE에서 option_name 가져오기 -->
+        FROM
+        cart c
+        JOIN
+        detail_cart dc ON c.cart_id = dc.cart_id
+        JOIN
+        prod p ON dc.prod_id = p.prod_id
+        JOIN
+        option_table ot ON dc.option_id = ot.option_id
+        WHERE
+        c.mem_id = #{memId}
+        AND
+        c.cart_status = 'CART'
+    </select>
+
+
+
+</mapper>

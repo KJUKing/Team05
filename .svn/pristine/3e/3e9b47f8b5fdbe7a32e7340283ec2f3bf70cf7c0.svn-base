@@ -1,0 +1,53 @@
+package kr.or.ddit.member.controller;
+
+/**
+ * 이메일 인증을 위한 이메일 발송을 처리하는 서블릿
+ * 
+ * 이 서블릿은 회원가입 과정에서 이메일 인증을 위한 이메일 발송을 담당합니다.
+ * URL 매핑: /member/sendVerificationEmail.do
+ */
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import kr.or.ddit.member.service.MemberService;
+
+@WebServlet("/member/sendVerificationEmail.do")
+public class SendVerificationEmailServlet extends HttpServlet {
+	private MemberService memberService;
+
+	// 서블릿 초기화 메서드
+	// MemberService 인스턴스를 생성하고 초기화합니다.
+	public void init() {
+		String baseURL = getServletContext().getInitParameter("baseURL");
+		memberService = MemberService.getInstance(baseURL);
+	}
+
+	// POST 요청 처리 메서드
+	// 이메일 중복 확인, 인증 토큰 생성, 이메일 발송을 처리합니다.
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		String email = request.getParameter("email");
+
+		try {
+            // 이메일 중복 확인
+            if (memberService.isEmailAvailable(email)) {
+                // 인증 토큰 생성
+                String verificationToken = memberService.generateEmailVerificationToken(email);
+                // 인증 이메일 발송
+                memberService.sendVerificationEmail(email, verificationToken);
+                response.getWriter().write("success");
+            } else {
+                // 이미 사용 중인 이메일인 경우
+                response.getWriter().write("이미 사용 중인 이메일입니다.");
+            }
+        } catch (Exception e) {
+            // 이메일 발송 중 오류 발생 시
+            response.getWriter().write("이메일 발송 중 오류가 발생했습니다.");
+        }
+    }
+}

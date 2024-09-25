@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+		PUBLIC "-//mybatis.org/DTD Config 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<!-- DB연결에 사용할 properties파일에 대한 정보를 알려준다. -->
+	<properties resource="kr/or/ddit/mybatis/config/dbinfo.properties"/>
+	
+	<!-- 기본 셋팅 값들 -->
+	<settings>
+		<!-- 데이터가 null이 전달되면 빈 칸으로 인식하지 말고 null로 인식하라  -->
+		<setting name="jdbcTypeForNull" value="NULL"/>
+		
+		<!-- MyBatis에 log4j 적용하기 -->
+		<setting name="logImpl" value="LOG4J"/>
+	</settings>
+	
+	<!-- 사용할 VO객체의 별칭 설정하기  -->
+	<!-- 원래 VO객체를 사용할 때는 해당 객체의 전체 이름(패키지명까지 포함된 이름)을
+	     사용해야 하는데 이렇게 되면 이름이 너무 길어질 수 있다. 긴 이름 대신 사용할 별칭을 설정한다.  -->
+	<!--
+	 
+	<typeAliases>
+		<typeAlais type="패키명이 포함된 전체이름" alias="별칭이름"/>
+	</typeAliases>
+	-->
+	<typeAliases>
+		<!-- 여기에 VO클래스 지정하기 -->
+		<typeAlias type="kr.or.ddit.member.vo.AdminVO" alias="AdminVO"/>
+		<typeAlias type="kr.or.ddit.card.vo.CardVO" alias="cardVo"/>
+		<typeAlias type="kr.or.ddit.prod.vo.DeCateVO" alias="decateVo"/>
+		<typeAlias type="kr.or.ddit.express.vo.ExpressVO" alias="exVo"/>
+		<typeAlias type="kr.or.ddit.prod.vo.MainCateVO" alias="maincateVO"/>
+		<typeAlias type="kr.or.ddit.member.vo.MemberVO" alias="memVo"/>
+		<typeAlias type="kr.or.ddit.notice.vo.NoticeVO" alias="noticeVo"/>
+		<typeAlias type="kr.or.ddit.prod.vo.OprodVO" alias="oprodVo"/>
+		<typeAlias type="kr.or.ddit.prod.vo.OptionVO" alias="optionVo"/>
+		<typeAlias type="kr.or.ddit.payment.vo.PaymentVO" alias="payVo"/>
+		<typeAlias type="kr.or.ddit.prod.vo.ProdVO" alias="prodVo"/>
+		<typeAlias type="kr.or.ddit.qna.vo.QnaVO" alias="qnaVo"/>
+		<typeAlias type="kr.or.ddit.review.vo.ReviewVO" alias="reviewVo"/>
+		<typeAlias type="kr.or.ddit.wish.vo.WishListVO" alias="wishVo"/>
+		<typeAlias type="kr.or.ddit.util.PageVO" alias="pageVo"/>
+		<typeAlias type="kr.or.ddit.report.vo.ReportVO" alias="reportVo"/>
+		<typeAlias type="kr.or.ddit.image.vo.ImageVO" alias="imageVo"/>
+		<typeAlias type="kr.or.ddit.riturn.vo.RiturnVO" alias="riturnVo"/>
+		<typeAlias type="kr.or.ddit.likes.vo.LikesVO" alias="likesVo"/>
+		<typeAlias type="kr.or.ddit.coupon.vo.CouponVO" alias="coupVo"/>
+	</typeAliases>
+	
+	 
+	<!-- DB에 접속 설정 -->
+	<environments default="oracleDev">
+		<environment id="oracleDev">
+			<transactionManager type="JDBC"/>
+			<dataSource type="POOLED">
+				<property name="driver" value="${driver}"/>
+				<property name="url" value="${url}"/>
+				<property name="username" value="${user}"/>
+				<property name="password" value="${pass}"/>
+			</dataSource>
+		</environment>
+		
+	</environments> 
+	 
+	<!--
+		SQL문이 저장된 xml문서를 따로 작성하는데 이 문서를 이곳에 등록한다. 
+		
+	<mappers>
+		<mapper resource="경로명/파일명.xml">
+	</mappers>	
+	--> 
+	<mappers>
+	   <mapper resource="kr/or/ddit/mybatis/mappers/admin-mapper.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/card-mapper.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/deCate-mapper.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/express-mapper.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/mainCate-mapper.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/member-mapper.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/notice-mapper.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/oprod-mapper.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/option-mapper.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/payment-mapper.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/prod-mapper.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/qna-mapper.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/review-mapper.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/wish-mapper.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/pagination-mapper.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/report-mapper.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/image_mapper.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/riturn-mapper.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/likes-mapper.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/coupon-mapper.xml"/>
+		<!-- 여기에  매퍼파일 채워넣기 -->
+	</mappers>
+	
+
+</configuration>		
+
